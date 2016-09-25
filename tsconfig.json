@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outFile": "dist/tsc.js",
+        "sourceMap": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

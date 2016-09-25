@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="dist/tsc.js"></script>
+</head>
+<body>
+<canvas id="cnvs" height="600" width="600"></canvas>
+<form>
+  <label for="maze_width">Maze Width</label>
+  <input id="maze_width" type="text" value="30" />
+  <label for="maze_height">Maze Height</label>
+  <input id="maze_height" type="text" value="30" />
+  <label for="maze_seed">Seed</label>
+  <input id="maze_seed" type="text" value="1" />
+  <input type="button" onclick="gen_maze()" value="Generate Maze"/>
+  <input type="button" onclick="solve_maze()" value="Solve Maze" />
+</form>
+<script>
+window.onload = function() {
+  window.maze = new Maze.Main(document.getElementById('cnvs'));
+}
+function gen_maze() {
+  width = document.getElementById('maze_width').value;
+  height = document.getElementById('maze_height').value;
+  seed = document.getElementById('maze_seed').value;
+
+  window.maze.generateMaze(width, height, seed);
+}
+
+function solve_maze() {
+  window.maze.solveMaze();
+}
+</script>
+</body>
+</html>
