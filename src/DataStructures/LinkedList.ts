@@ -180,7 +180,7 @@ module Maze.DataStructures
         var node1:ListNode = this.head;
 
         var j:number;
-        for ( j = 0; j < s; j++)
+        for (j = 0; j < s; j++)
           node1 = node1.next;
 
         var t:any = node1.data;

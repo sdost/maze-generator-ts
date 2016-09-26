@@ -39,14 +39,10 @@ module Maze.DataStructures
       if (setA.size > setB.size)
       {
         setA.merge(setB);
-        //setB.clear();
-        //setB = null;
       }
       else
       {
         setB.merge(setA);
-        //setA.clear();
-        //setA = null;
       }
     }
   }

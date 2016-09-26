@@ -5,7 +5,6 @@ module Maze.Objects
     public xPos:number;
     public yPos:number;
 
-    // List to store wall existence, counting CW from top most wall. Mostly for rendering purposes.
     protected _wallList:Array<Boolean>;
 
     constructor()

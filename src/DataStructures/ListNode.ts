@@ -29,6 +29,6 @@ module Maze.DataStructures
     public unlink():void
     {
       this._list.unlink(this);
-    }//end unlink()
+    }
   }
 }
