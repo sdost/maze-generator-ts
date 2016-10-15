@@ -1,42 +1,23 @@
-module Maze.Objects
-{
-  export class MazeCell
-  {
-    public xPos:number;
-    public yPos:number;
+export abstract class MazeCell {
+  public xPos: number;
+  public yPos: number;
 
-    protected _wallList:Array<Boolean>;
+  protected wallList: Array<Boolean>;
 
-    constructor()
-    {
-      this._wallList = new Array<Boolean>();
-      this.initialize();
-    }
-
-    protected initialize():void
-    {
-      // For override.
-    }
-
-    public removeWall(a_ind:number):void
-    {
-      // For override.
-    }
-
-    public hasWall(a_ind:number):Boolean
-    {
-      // For override.
-      return false;
-    }
-
-    public render(a_g:CanvasRenderingContext2D, a_scale:number):void
-    {
-      // For override
-    }
-
-    public walls():number
-    {
-      return this._wallList.length;
-    }
+  constructor() {
+    this.wallList = new Array<Boolean>();
+    this.initialize();
   }
+
+  public abstract removeWall(ind: number): void;
+
+  public abstract hasWall(ind: number): Boolean;
+
+  public abstract render(context: CanvasRenderingContext2D, scale: number): void;
+
+  public walls(): number {
+    return this.wallList.length;
+  }
+
+  protected abstract initialize(): void;
 }

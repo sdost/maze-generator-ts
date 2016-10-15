@@ -1,199 +1,148 @@
-module Maze.Objects
-{
-  export class SquareMazeSolver extends MazeSolver
-  {
-    public static RIGHT_HAND:number = 0;
-    public static LEFT_HAND:number = 1;
+import { ListIterator } from "../DataStructures/LinkedList";
+import { MazeCell } from "./MazeCell";
+import { MazeGrid } from "./MazeGrid";
+import { MazeSolver } from "./MazeSolver";
+import { SquareMazeCell, SquareWall } from "./SquareMazeCell";
 
-    private static SCALE:number = 10;
+export class SquareMazeSolver extends MazeSolver {
+  public static RIGHT_HAND: number = 0;
+  public static LEFT_HAND: number = 1;
 
-    private _facing:number;
+  private facing: number;
 
-    constructor(a_maze:MazeGrid)
-    {
-      super(a_maze);
+  constructor(maze: MazeGrid) {
+    super(maze);
+  }
+
+  public solve(): void {
+    if (this.maze.startCell.yPos === 0) {
+      this.facing = SquareWall.Bottom;
+    } else if (this.maze.startCell.xPos === this.maze.width - 1) {
+      this.facing = SquareWall.Left;
+    } else if (this.maze.startCell.yPos === this.maze.height - 1) {
+      this.facing = SquareWall.Top;
+    } else {
+      this.facing = SquareWall.Right;
     }
 
-    public solve():void
-    {
-      if(this._maze.startCell.yPos == 0)
-      {
-        this._facing = SquareWall.Bottom;
-      }
-      else if(this._maze.startCell.xPos == this._maze.width-1)
-      {
-        this._facing = SquareWall.Left;
-      }
-      else if(this._maze.startCell.yPos == this._maze.height-1)
-      {
-        this._facing = SquareWall.Top;
-      }
-      else
-      {
-        this._facing = SquareWall.Right; 
-      }
+    let cell: SquareMazeCell;
+    let lastCell: SquareMazeCell;
+    let nextCell: SquareMazeCell;
+    let x: number;
+    let y: number;
+    while ( !this.path.contains(this.maze.endCell) ) {
+      lastCell = cell;
+      cell = this.path.tail.data;
 
-      var cell:SquareMazeCell, lastCell:SquareMazeCell, nextCell:SquareMazeCell;
-      var x:number, y:number;
-      while ( !this._path.contains(this._maze.endCell) )
-      {
-        lastCell = cell;
-        cell = this._path.tail.data;
-
-        var w:number = this.getRightHandWall();
-        if ( cell.hasWall(w) )
-        {
-          if ( cell.hasWall(this._facing) )
-          {
-            this._facing = this.getLeftHandWall();
-          }
-          else
-          {
-            x = cell.xPos;
-            y = cell.yPos;
-
-            if ( this._facing == SquareWall.Top )
-            {
-              y--;
-            }
-            else if ( this._facing == SquareWall.Bottom )
-            {
-              y++;
-            }
-            else if ( this._facing == SquareWall.Left )
-            {
-              x--;
-            }
-            else if ( this._facing == SquareWall.Right )
-            {
-              x++;
-            }
-            nextCell = this._maze.getCell(x, y) as SquareMazeCell;
-
-            if (nextCell != null)
-            {
-              if (this._path.contains(nextCell))
-              {
-                this._path.tail.unlink();
-              }
-              else if ( nextCell == lastCell )
-              {
-                this._path.tail.unlink();
-              }
-              else
-              {
-                this._path.append(nextCell);
-              }
-            }
-          }
-        }
-        else
-        {
-          this._facing = this.getRightHandWall();
+      let w: number = this.getRightHandWall();
+      if ( cell.hasWall(w) ) {
+        if ( cell.hasWall(this.facing) ) {
+          this.facing = this.getLeftHandWall();
+        } else {
           x = cell.xPos;
           y = cell.yPos;
 
-          if ( this._facing == SquareWall.Top )
-          {
+          if ( this.facing === SquareWall.Top ) {
             y--;
-          }
-          else if ( this._facing == SquareWall.Bottom )
-          {
+          } else if ( this.facing === SquareWall.Bottom ) {
             y++;
-          }
-          else if ( this._facing == SquareWall.Left )
-          {
+          } else if ( this.facing === SquareWall.Left ) {
             x--;
-          }
-          else if ( this._facing == SquareWall.Right )
-          {
+          } else if ( this.facing === SquareWall.Right ) {
             x++;
           }
-          nextCell = this._maze.getCell(x, y) as SquareMazeCell;
+          nextCell = this.maze.getCell(x, y) as SquareMazeCell;
 
-          if (nextCell != null)
-          {
-            if (this._path.contains(nextCell))
-            {
-              this._path.tail.unlink();
+          if (nextCell != null) {
+            if (this.path.contains(nextCell)) {
+              this.path.tail.unlink();
+            } else if ( nextCell === lastCell ) {
+              this.path.tail.unlink();
+            } else {
+              this.path.append(nextCell);
             }
-            else if ( nextCell == lastCell )
-            {
-              this._path.tail.unlink();
-            }
-            else
-            {
-              this._path.append(nextCell);
-            }
+          }
+        }
+      } else {
+        this.facing = this.getRightHandWall();
+        x = cell.xPos;
+        y = cell.yPos;
+
+        if ( this.facing === SquareWall.Top ) {
+          y--;
+        } else if ( this.facing === SquareWall.Bottom ) {
+          y++;
+        } else if ( this.facing === SquareWall.Left ) {
+          x--;
+        } else if ( this.facing === SquareWall.Right ) {
+          x++;
+        }
+        nextCell = this.maze.getCell(x, y) as SquareMazeCell;
+
+        if (nextCell != null) {
+          if (this.path.contains(nextCell)) {
+            this.path.tail.unlink();
+          } else if ( nextCell === lastCell ) {
+            this.path.tail.unlink();
+          } else {
+            this.path.append(nextCell);
           }
         }
       }
     }
+  }
 
-    private getRightHandWall():number
-    {
-      if (this._facing == SquareWall.Top)
-      {
-        return SquareWall.Right
-      }
+  public render(context: CanvasRenderingContext2D, scale: number): void {
+    context.fillStyle = "#33888866";
 
-      if (this._facing == SquareWall.Right)
-      {
-        return SquareWall.Bottom
-      }
+    context.beginPath();
 
-      if (this._facing == SquareWall.Bottom)
-      {
-        return SquareWall.Left
-      }
-
-      if (this._facing == SquareWall.Left)
-      {
-        return SquareWall.Top;
-      }
-
-      return Number.NaN;
+    let itr: ListIterator = this.path.iterator;
+    while (itr.hasNext()) {
+      let cell: MazeCell = itr.next();
+      cell.render(context, scale);
     }
 
-    private getLeftHandWall():number
-    {
-      if (this._facing == SquareWall.Top)
-      {
-        return SquareWall.Left
-      }
+    context.fill();
+  }
 
-      if (this._facing == SquareWall.Left)
-      {
-        return SquareWall.Bottom
-      }
-
-      if (this._facing == SquareWall.Bottom)
-      {
-        return SquareWall.Right
-      }
-
-      if (this._facing == SquareWall.Right)
-      {
-        return SquareWall.Top;
-      }
-
-      return Number.NaN;
+  private getRightHandWall(): number {
+    if (this.facing === SquareWall.Top) {
+      return SquareWall.Right;
     }
 
-    public render(a_g:CanvasRenderingContext2D, a_scale:number):void
-    {
-      a_g.fillStyle = "#33888866";
-      
-      a_g.beginPath();
-
-      var itr:DataStructures.ListIterator = this._path.iterator;
-      while (itr.hasNext())
-      {
-        var cell:MazeCell = itr.next();
-        cell.render(a_g, a_scale);
-      }
-
-      a_g.fill();
+    if (this.facing === SquareWall.Right) {
+      return SquareWall.Bottom;
     }
+
+    if (this.facing === SquareWall.Bottom) {
+      return SquareWall.Left;
+    }
+
+    if (this.facing === SquareWall.Left) {
+      return SquareWall.Top;
+    }
+
+    return Number.NaN;
+  }
+
+  private getLeftHandWall(): number {
+    if (this.facing === SquareWall.Top) {
+      return SquareWall.Left;
+    }
+
+    if (this.facing === SquareWall.Left) {
+      return SquareWall.Bottom;
+    }
+
+    if (this.facing === SquareWall.Bottom) {
+      return SquareWall.Right;
+    }
+
+    if (this.facing === SquareWall.Right) {
+      return SquareWall.Top;
+    }
+
+    return Number.NaN;
   }
 }

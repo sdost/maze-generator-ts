@@ -1,49 +1,38 @@
-module Maze.DataStructures
-{
-  export class DisjointSet
-  {
-    private _index:number;
-    private _list:Array<ListNode>;
+import { LinkedList, ListNode } from "./LinkedList";
 
-    constructor(a_size:number)
-    {
-      this._list = new Array<ListNode>(a_size);
-      this._index = 0;
+export class DisjointSet {
+  private index: number;
+  private list: Array<ListNode>;
+
+  constructor(size: number) {
+    this.list = new Array<ListNode>(size);
+    this.index = 0;
+  }
+
+  public createSet(data: any): void {
+    let newSet: LinkedList = new LinkedList();
+    let node: ListNode = newSet.append(data);
+    this.list[this.index++] = node;
+  }
+
+  public findSet(data: any): LinkedList {
+    for (let node of this.list) {
+      if ( node && node.data === data ) {
+        return node.list;
+      }
     }
 
-    public createSet(a_data:any):void
-    {
-      var newSet:LinkedList = new LinkedList();
-      var node:ListNode = newSet.append(a_data);
-      this._list[this._index++] = node;
-    }
+    return null;
+  }
 
-    public findSet(a_data:any):LinkedList
-    {
-      for (let node of this._list )
-      {
-        if ( node && node.data == a_data )
-        {
-          return node.list;
-        }
-      }
+  public mergeSet(dataA: any, dataB: any): void {
+    let setA: LinkedList = this.findSet(dataA);
+    let setB: LinkedList = this.findSet(dataB);
 
-      return null;
-    }
-
-    public mergeSet(a_dataA:any, a_dataB:any):void
-    {
-      var setA:LinkedList = this.findSet(a_dataA);
-      var setB:LinkedList = this.findSet(a_dataB);
-
-      if (setA.size > setB.size)
-      {
-        setA.merge(setB);
-      }
-      else
-      {
-        setB.merge(setA);
-      }
+    if (setA.size > setB.size) {
+      setA.merge(setB);
+    } else {
+      setB.merge(setA);
     }
   }
 }

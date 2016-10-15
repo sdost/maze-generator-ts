@@ -1,26 +1,18 @@
-module Maze.Objects
-{
-  export class MazeSolver
-  {
-    protected _maze:MazeGrid;
-    protected _path:DataStructures.LinkedList;
+import { LinkedList } from "../DataStructures/LinkedList";
+import { MazeGrid } from "./MazeGrid";
 
-    constructor(a_maze:MazeGrid)
-    {
-      this._maze = a_maze;
-      this._path = new DataStructures.LinkedList();
+export abstract class MazeSolver {
+  protected maze: MazeGrid;
+  protected path: LinkedList;
 
-      this._path.append(this._maze.startCell);
-    }
+  constructor(maze: MazeGrid) {
+    this.maze = maze;
+    this.path = new LinkedList();
 
-    public solve():void
-    {
-      // For override.
-    }
-
-    public render(a_g:CanvasRenderingContext2D, a_scale:number):void
-    {
-      // For override.
-    }
+    this.path.append(this.maze.startCell);
   }
+
+  public abstract solve(): void;
+
+  public abstract render(context: CanvasRenderingContext2D, scale: number): void;
 }

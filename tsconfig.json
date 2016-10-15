@@ -1,13 +1,10 @@
 {
     "compilerOptions": {
-        "target": "ES5",
-        "noImplicitAny": true,
-        "removeComments": true,
-        "preserveConstEnums": true,
+        "target": "es5",
+        "rootDir": "./src",
+        "sourceRoot": "./src",
         "outFile": "dist/tsc.js",
+        "module": "amd",
         "sourceMap": true
-    },
-    "include": [
-        "src/**/*"
-    ]
+    }
 }

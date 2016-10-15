@@ -1,33 +1,23 @@
-module Maze.Objects
-{
-  export class MazeWall
-  {
-    private _cellA:MazeCell;
-    private _cellB:MazeCell;
+import { MazeCell } from "./MazeCell";
 
-    constructor(a_cellA:MazeCell, a_cellB:MazeCell)
-    {
-      this._cellA = a_cellA;
-      this._cellB = a_cellB;
+export class MazeWall {
+  public cellA: MazeCell;
+  public cellB: MazeCell;
+
+  constructor(cellA: MazeCell, cellB: MazeCell) {
+    this.cellA = cellA;
+    this.cellB = cellB;
+  }
+
+  public equals(wall: MazeWall): Boolean {
+    if ( this.cellA === wall.cellA && this.cellB === wall.cellB ) {
+      return true;
     }
 
-    public get cellA():MazeCell
-    {
-      return this._cellA;
+    if ( this.cellB === wall.cellA && this.cellA === wall.cellB ) {
+      return true;
     }
 
-    public get cellB():MazeCell
-    {
-      return this._cellB;
-    }
-
-    public equals(a_wall:MazeWall):Boolean
-    {
-      if ( this._cellA == a_wall.cellA && this._cellB == a_wall.cellB ) return true;
-
-      if ( this._cellB == a_wall.cellA && this._cellA == a_wall.cellB ) return true;
-
-      return false;
-    }
+    return false;
   }
 }

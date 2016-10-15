@@ -1,43 +1,47 @@
-module Maze
-{
-  export class Main
-  {
-    private _canvas: HTMLCanvasElement;
-    private _context: CanvasRenderingContext2D;
+import { MazeGrid } from "./Objects/MazeGrid";
+import { MazeSolver } from "./Objects/MazeSolver";
+import { SquareMazeGrid } from "./Objects/SquareMazeGrid";
+import { SquareMazeSolver } from "./Objects/SquareMazeSolver";
 
-    private _maze:Objects.MazeGrid;
-    private _solver:Objects.MazeSolver;
+export default class Main {
+  private canvas: HTMLCanvasElement;
+  private context: CanvasRenderingContext2D;
 
-    constructor(a_canvas: HTMLCanvasElement)
-    {
-      this._canvas = a_canvas;
-      this._context = this._canvas.getContext("2d");
+  private maze: MazeGrid;
+  private solver: MazeSolver;
+
+  constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
+    this.context = this.canvas.getContext("2d");
+  }
+
+  public generateMaze(width: number, height: number, seed: number): void {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.maze = new SquareMazeGrid(width, height);
+    this.maze.generate(seed);
+
+    let scale: number = 1;
+    if (height < width) {
+      scale = this.canvas.width / width;
+    } else {
+      scale = this.canvas.height / height;
     }
 
-    public generateMaze(a_width:number, a_height:number, a_seed:number):void
-    {
-      this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    this.maze.render(this.context, scale);
+  }
 
-      this._maze = new Objects.SquareMazeGrid(a_width, a_height);
-      this._maze.generate(a_seed);
+  public solveMaze(): void {
+    this.solver = new SquareMazeSolver(this.maze);
+    this.solver.solve();
 
-      var scale:number = 1;
-      if (a_height < a_width) scale = this._canvas.width / a_width;
-      else scale = this._canvas.height / a_height;
-
-      this._maze.render(this._context, scale);
+    let scale: number = 1;
+    if (this.maze.height < this.maze.width) {
+      scale = this.canvas.width / this.maze.width;
+    } else {
+      scale = this.canvas.height / this.maze.height;
     }
 
-    public solveMaze():void
-    {
-      this._solver = new Objects.SquareMazeSolver(this._maze);
-      this._solver.solve();
-
-      var scale:number = 1;
-      if (this._maze.height < this._maze.width) scale = this._canvas.width / this._maze.width;
-      else scale = this._canvas.height / this._maze.height;
-
-      this._solver.render(this._context, scale);
-    }
+    this.solver.render(this.context, scale);
   }
 }

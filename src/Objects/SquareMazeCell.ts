@@ -1,76 +1,67 @@
-module Maze.Objects
-{
-  export const enum SquareWall
-  {
-    Top = 0,
-    Right = 1,
-    Bottom = 2,
-    Left = 3
+import { MazeCell } from "./MazeCell";
+
+export const enum SquareWall {
+  Top = 0,
+  Right = 1,
+  Bottom = 2,
+  Left = 3
+}
+
+export class SquareMazeCell extends MazeCell {
+  constructor(x: number, y: number) {
+    super();
+
+    this.xPos = x;
+    this.yPos = y;
   }
 
-  export class SquareMazeCell extends MazeCell
-  {
-    constructor(a_x:number, a_y:number)
-    {
-      super();
-
-      this.xPos = a_x;
-      this.yPos = a_y;
+  public removeWall(ind: number): void {
+    if ( ind >= 0 && ind < this.wallList.length ) {
+      this.wallList[ind] = false;
     }
+  }
 
-    protected initialize():void
-    {
-      // TOP
-      this._wallList.push(true);
-
-      // RIGHT
-      this._wallList.push(true);
-
-      // BOTTOM
-      this._wallList.push(true);
-
-      // LEFT
-      this._wallList.push(true);
+  public hasWall(ind: number): Boolean {
+    if ( ind >= 0 && ind < this.wallList.length ) {
+      return this.wallList[ind];
+    } else {
+      return false;
     }
+  }
 
-    public removeWall(a_ind:number):void
-    {
-      if ( a_ind >= 0 && a_ind < this._wallList.length )
-      {
-        this._wallList[a_ind] = false;
-      }
-    }
+  public render(context: CanvasRenderingContext2D, scale: number): void {
+    const xOffset: number = this.xPos * scale;
+    const yOffset: number = this.yPos * scale;
 
-    public hasWall(a_ind:number):Boolean
-    {
-      if ( a_ind >= 0 && a_ind < this._wallList.length )
-      {
-        return this._wallList[a_ind];
-      }
-      else return false;
-    }
+    let penX: number = xOffset;
+    let penY: number = yOffset;
 
-    public render(a_g:CanvasRenderingContext2D, a_scale:number):void
-    {
-      var xOffset:number = this.xPos * a_scale;
-      var yOffset:number = this.yPos * a_scale;
+    context.moveTo(penX, penY);
 
-      var penX:number = xOffset;
-      var penY:number = yOffset;
+    penX += scale;
+    context.lineTo(penX, penY);
 
-      a_g.moveTo(penX, penY);
+    penY += scale;
+    context.lineTo(penX, penY);
 
-      penX += a_scale;
-      a_g.lineTo(penX, penY);
+    penX = xOffset;
+    context.lineTo(penX, penY);
 
-      penY += a_scale;
-      a_g.lineTo(penX, penY);
+    penY = yOffset;
+    context.lineTo(penX, penY);
+  }
 
-      penX = xOffset;
-      a_g.lineTo(penX, penY);
+  protected initialize(): void {
+    // TOP
+    this.wallList.push(true);
 
-      penY = yOffset;
-      a_g.lineTo(penX, penY);
-    }
+    // RIGHT
+    this.wallList.push(true);
+
+    // BOTTOM
+    this.wallList.push(true);
+
+    // LEFT
+    this.wallList.push(true);
   }
 }

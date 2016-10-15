@@ -1,61 +1,30 @@
-module Maze.Objects
-{
-  export class MazeGrid
-  {
-    protected _shift:number;
-    protected _gridWidth:number;
-    protected _gridHeight:number;
+import { DisjointSet } from "../DataStructures/DisjointSet";
+import { MazeCell } from "./MazeCell";
 
-    protected _grid:Array<MazeCell>;
-    protected _ds:DataStructures.DisjointSet;
+export abstract class MazeGrid {
+  protected shift: number;
+  protected gridWidth: number;
+  protected gridHeight: number;
 
-    protected _startCell:MazeCell;
-    protected _endCell:MazeCell;
+  protected grid: Array<MazeCell>;
+  protected ds: DisjointSet;
 
-    constructor()
-    {
+  protected gridStartCell: MazeCell;
+  protected gridEndCell: MazeCell;
 
-    }
+  public abstract render(context: CanvasRenderingContext2D, scale: number): void;
 
-    protected initGrid():void
-    {
-      // For override.
-    }
+  public abstract getCell(x: number, a: number): MazeCell;
 
-    public get startCell():MazeCell
-    {
-      return this._startCell;
-    }
+  public abstract generate(seed: number): void;
 
-    public get endCell():MazeCell
-    {
-      return this._endCell;
-    }
+  public get startCell(): MazeCell { return this.gridStartCell; }
 
-    public render(a_g:CanvasRenderingContext2D, a_scale:number):void
-    {
-      // For override.
-    }
+  public get endCell(): MazeCell { return this.gridEndCell; }
 
-    public getCell(a_x:number, a_y:number):MazeCell
-    {
-      // For override.
-      return null;
-    }
+  public get width(): number { return this.gridWidth; }
 
-    public generate(a_seed:number = 1):void
-    {
-      // For override?
-    }
+  public get height(): number { return this.gridHeight; }
 
-    public get width():number
-    {
-      return this._gridWidth;
-    }
-
-    public get height():number
-    {
-      return this._gridHeight;
-    }
-  }
+  protected abstract initGrid(): void;
 }

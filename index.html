@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="dist/require.js"></script>
 <script src="dist/tsc.js"></script>
 </head>
 <body>
@@ -16,9 +17,10 @@
   <input type="button" onclick="solve_maze()" value="Solve Maze" />
 </form>
 <script>
-window.onload = function() {
-  window.maze = new Maze.Main(document.getElementById('cnvs'));
-}
+require(['Main'], function(Main) {
+  window.maze = new Main.default(document.getElementById('cnvs'));
+});
+
 function gen_maze() {
   width = document.getElementById('maze_width').value;
   height = document.getElementById('maze_height').value;
