@@ -122,7 +122,8 @@ export class SquareMazeGrid extends MazeGrid {
 
     // Add finish.
     this.gridEndCell = this.createExitCell(prng);
-    while(this.gridStartCell === this.gridEndCell) {
+    while (this.gridStartCell.xPos === this.gridEndCell.xPos ||
+          this.gridStartCell.yPos === this.gridEndCell.yPos) {
       this.gridEndCell = this.createExitCell(prng);
     }
   }
