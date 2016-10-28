@@ -41,13 +41,11 @@ export class SquareMazeGrid extends MazeGrid {
           }
         }
 
-        if ( y > 0 )
-        {
+        if ( y > 0 ) {
           ind = (x << this.shift) | (y - 1);
           cellB = this.grid[ind] as SquareMazeCell;
 
-          if ( cellB != null )
-          {
+          if ( cellB != null ) {
             wall = new MazeWall(cellA, cellB);
 
             if (!this.wallList.contains(wall)) {
@@ -56,8 +54,7 @@ export class SquareMazeGrid extends MazeGrid {
           }
         }
 
-        if ( x < (this.gridWidth - 1) )
-        {
+        if ( x < (this.gridWidth - 1) ) {
           ind = ((x + 1) << this.shift) | y;
           cellB = this.grid[ind] as SquareMazeCell;
 
@@ -117,15 +114,8 @@ export class SquareMazeGrid extends MazeGrid {
       }
     }
 
-    // Add start.
-    this.gridStartCell = this.createExitCell(prng);
-
-    // Add finish.
-    this.gridEndCell = this.createExitCell(prng);
-    while (this.gridStartCell.xPos === this.gridEndCell.xPos ||
-          this.gridStartCell.yPos === this.gridEndCell.yPos) {
-      this.gridEndCell = this.createExitCell(prng);
-    }
+    // Add start and end.
+    this.createExitCells(prng);
   }
 
   public render(context: CanvasRenderingContext2D, scale: number): void {
@@ -143,14 +133,14 @@ export class SquareMazeGrid extends MazeGrid {
 
     context.stroke();
 
-    if(this.startCell) {
+    if (this.startCell) {
       context.fillStyle = "#008800";
       context.beginPath();
       this.startCell.render(context, scale);
       context.fill();
     }
 
-    if(this.endCell) {
+    if (this.endCell) {
       context.fillStyle = "#880000";
       context.beginPath();
       this.endCell.render(context, scale);
@@ -189,12 +179,12 @@ export class SquareMazeGrid extends MazeGrid {
     }
   }
 
-  private createExitCell(prng: PseudoRandom): MazeCell {
+  private createExitCells(prng: PseudoRandom): void {
     let outerWall: SquareWall = prng.nextIntRange(0, 3);
     let xPos = 0;
     let yPos = 0;
 
-    switch(outerWall) {
+    switch (outerWall) {
       case SquareWall.Top:
         xPos = prng.nextIntRange(0, this.gridWidth - 1);
         yPos = 0;
@@ -211,7 +201,26 @@ export class SquareMazeGrid extends MazeGrid {
         break;
     }
 
-    return this.getCell(xPos, yPos);
+    this.gridStartCell = this.getCell(xPos, yPos);
+
+    switch (outerWall) {
+      case SquareWall.Top:
+        xPos = prng.nextIntRange(0, this.gridWidth - 1);
+        yPos = this.gridHeight - 1;
+      case SquareWall.Right:
+        yPos = prng.nextIntRange(0, this.gridHeight - 1);
+        xPos = 0;
+      case SquareWall.Bottom:
+        xPos = prng.nextIntRange(0, this.gridWidth - 1);
+        yPos = 0;
+      case SquareWall.Left:
+        yPos = prng.nextIntRange(0, this.gridHeight - 1);
+        xPos = this.gridWidth - 1;
+      default:
+        break;
+    }
+
+    this.gridEndCell = this.getCell(xPos, yPos);
   }
 
   private renderWalls(context: CanvasRenderingContext2D, cell: MazeCell, scale: number): void {

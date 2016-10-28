@@ -471,14 +471,8 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     wall.cellB.removeWall(0 /* Top */);
                 }
             }
-            // Add start.
-            this.gridStartCell = this.createExitCell(prng);
-            // Add finish.
-            this.gridEndCell = this.createExitCell(prng);
-            while (this.gridStartCell.xPos === this.gridEndCell.xPos ||
-                this.gridStartCell.yPos === this.gridEndCell.yPos) {
-                this.gridEndCell = this.createExitCell(prng);
-            }
+            // Add start and end.
+            this.createExitCells(prng);
         };
         SquareMazeGrid.prototype.render = function (context, scale) {
             context.strokeStyle = "#000000";
@@ -529,7 +523,7 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                 }
             }
         };
-        SquareMazeGrid.prototype.createExitCell = function (prng) {
+        SquareMazeGrid.prototype.createExitCells = function (prng) {
             var outerWall = prng.nextIntRange(0, 3);
             var xPos = 0;
             var yPos = 0;
@@ -549,7 +543,24 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                 default:
                     break;
             }
-            return this.getCell(xPos, yPos);
+            this.gridStartCell = this.getCell(xPos, yPos);
+            switch (outerWall) {
+                case 0 /* Top */:
+                    xPos = prng.nextIntRange(0, this.gridWidth - 1);
+                    yPos = this.gridHeight - 1;
+                case 1 /* Right */:
+                    yPos = prng.nextIntRange(0, this.gridHeight - 1);
+                    xPos = 0;
+                case 2 /* Bottom */:
+                    xPos = prng.nextIntRange(0, this.gridWidth - 1);
+                    yPos = 0;
+                case 3 /* Left */:
+                    yPos = prng.nextIntRange(0, this.gridHeight - 1);
+                    xPos = this.gridWidth - 1;
+                default:
+                    break;
+            }
+            this.gridEndCell = this.getCell(xPos, yPos);
         };
         SquareMazeGrid.prototype.renderWalls = function (context, cell, scale) {
             var xOffset = cell.xPos * scale;
