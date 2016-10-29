@@ -407,7 +407,6 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                         }
                     }
                 }
-                return mazeGrid;
             }
             var sets = new DisjointSet_1.DisjointSet(mazeGrid.width * mazeGrid.height);
             for (var x = 0; x < mazeGrid.width; x++) {
@@ -444,6 +443,7 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             }
             // Add start and end.
             mazeGrid.createExitCells(prng);
+            return mazeGrid;
         };
         SquareMazeGrid.prototype.getCell = function (x, y) {
             var ind = (x << this.shift) | y;

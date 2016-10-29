@@ -100,8 +100,6 @@ export class SquareMazeGrid extends MazeGrid {
           }
         }
       }
-
-      return mazeGrid;
     }
 
     let sets = new DisjointSet(mazeGrid.width * mazeGrid.height);
@@ -144,6 +142,8 @@ export class SquareMazeGrid extends MazeGrid {
 
     // Add start and end.
     mazeGrid.createExitCells(prng);
+
+    return mazeGrid;
   }
 
   constructor(width: number, height: number) {
