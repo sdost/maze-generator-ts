@@ -11,13 +11,13 @@ export const enum SquareWall {
 }
 
 export class SquareMazeCell extends MazeCell {
-  public removeWall(ind: SquareWall): void {
+  public removeWall(ind: number): void {
     if ( ind >= 0 && ind < this.wallList.length ) {
       this.wallList[ind] = false;
     }
   }
 
-  public hasWall(ind: SquareWall): Boolean {
+  public hasWall(ind: number): Boolean {
     if ( ind >= 0 && ind < this.wallList.length ) {
       return this.wallList[ind];
     } else {

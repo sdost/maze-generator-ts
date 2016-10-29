@@ -9,6 +9,7 @@ export class SquareMazeSolver {
   public static solve(maze: MazeGrid): LinkedList<SquareMazeCell> {
     let facing: SquareWall;
     let path: LinkedList<SquareMazeCell> = new LinkedList<SquareMazeCell>();
+    path.append(maze.startCell as SquareMazeCell);
 
     if (maze.startCell.yPos === 0) {
       facing = SquareWall.Bottom;
