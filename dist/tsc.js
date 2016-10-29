@@ -3,6 +3,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+define("DataStructures/IComparable", ["require", "exports"], function (require, exports) {
+    "use strict";
+});
 define("Helpers/PseudoRandom", ["require", "exports"], function (require, exports) {
     "use strict";
     var PseudoRandom = (function () {
@@ -161,7 +164,7 @@ define("DataStructures/LinkedList", ["require", "exports"], function (require, e
             if (from === void 0) { from = null; }
             var node = from == null ? this.head : from;
             while (node != null) {
-                if (node.data === data) {
+                if (node.data.equals(data)) {
                     break;
                 }
                 node = node.next;
@@ -171,7 +174,7 @@ define("DataStructures/LinkedList", ["require", "exports"], function (require, e
         LinkedList.prototype.contains = function (data) {
             var node = this.head;
             while (node != null) {
-                if (node.data === data) {
+                if (node.data.equals(data)) {
                     return true;
                 }
                 node = node.next;
@@ -235,7 +238,7 @@ define("DataStructures/DisjointSet", ["require", "exports", "DataStructures/Link
         DisjointSet.prototype.findSet = function (data) {
             for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
                 var node = _a[_i];
-                if (node && node.data === data) {
+                if (node && node.data.equals(data)) {
                     return node.list;
                 }
             }
@@ -255,22 +258,41 @@ define("DataStructures/DisjointSet", ["require", "exports", "DataStructures/Link
     }());
     exports.DisjointSet = DisjointSet;
 });
-define("Objects/MazeCell", ["require", "exports"], function (require, exports) {
+define("Objects/MazeGrid", ["require", "exports"], function (require, exports) {
     "use strict";
     var MazeCell = (function () {
-        function MazeCell() {
+        function MazeCell(x, y) {
+            this.xPos = x;
+            this.yPos = y;
             this.wallList = new Array();
             this.initialize();
         }
+        MazeCell.prototype.equals = function (other) {
+            return this === other;
+        };
         MazeCell.prototype.walls = function () {
             return this.wallList.length;
         };
         return MazeCell;
     }());
     exports.MazeCell = MazeCell;
-});
-define("Objects/MazeGrid", ["require", "exports"], function (require, exports) {
-    "use strict";
+    var MazeWall = (function () {
+        function MazeWall(cellA, cellB) {
+            this.cellA = cellA;
+            this.cellB = cellB;
+        }
+        MazeWall.prototype.equals = function (wall) {
+            if (this.cellA === wall.cellA && this.cellB === wall.cellB) {
+                return true;
+            }
+            if (this.cellB === wall.cellA && this.cellA === wall.cellB) {
+                return true;
+            }
+            return false;
+        };
+        return MazeWall;
+    }());
+    exports.MazeWall = MazeWall;
     var MazeGrid = (function () {
         function MazeGrid() {
         }
@@ -298,46 +320,12 @@ define("Objects/MazeGrid", ["require", "exports"], function (require, exports) {
     }());
     exports.MazeGrid = MazeGrid;
 });
-define("Objects/MazeSolver", ["require", "exports", "DataStructures/LinkedList"], function (require, exports, LinkedList_2) {
-    "use strict";
-    var MazeSolver = (function () {
-        function MazeSolver(maze) {
-            this.maze = maze;
-            this.path = new LinkedList_2.LinkedList();
-            this.path.append(this.maze.startCell);
-        }
-        return MazeSolver;
-    }());
-    exports.MazeSolver = MazeSolver;
-});
-define("Objects/MazeWall", ["require", "exports"], function (require, exports) {
-    "use strict";
-    var MazeWall = (function () {
-        function MazeWall(cellA, cellB) {
-            this.cellA = cellA;
-            this.cellB = cellB;
-        }
-        MazeWall.prototype.equals = function (wall) {
-            if (this.cellA === wall.cellA && this.cellB === wall.cellB) {
-                return true;
-            }
-            if (this.cellB === wall.cellA && this.cellA === wall.cellB) {
-                return true;
-            }
-            return false;
-        };
-        return MazeWall;
-    }());
-    exports.MazeWall = MazeWall;
-});
-define("Objects/SquareMazeCell", ["require", "exports", "Objects/MazeCell"], function (require, exports, MazeCell_1) {
+define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/DisjointSet", "DataStructures/LinkedList", "Helpers/PseudoRandom", "Objects/MazeGrid"], function (require, exports, DisjointSet_1, LinkedList_2, PseudoRandom_1, MazeGrid_1) {
     "use strict";
     var SquareMazeCell = (function (_super) {
         __extends(SquareMazeCell, _super);
-        function SquareMazeCell(x, y) {
-            _super.call(this);
-            this.xPos = x;
-            this.yPos = y;
+        function SquareMazeCell() {
+            _super.apply(this, arguments);
         }
         SquareMazeCell.prototype.removeWall = function (ind) {
             if (ind >= 0 && ind < this.wallList.length) {
@@ -352,21 +340,6 @@ define("Objects/SquareMazeCell", ["require", "exports", "Objects/MazeCell"], fun
                 return false;
             }
         };
-        SquareMazeCell.prototype.render = function (context, scale) {
-            var xOffset = this.xPos * scale;
-            var yOffset = this.yPos * scale;
-            var penX = xOffset;
-            var penY = yOffset;
-            context.moveTo(penX, penY);
-            penX += scale;
-            context.lineTo(penX, penY);
-            penY += scale;
-            context.lineTo(penX, penY);
-            penX = xOffset;
-            context.lineTo(penX, penY);
-            penY = yOffset;
-            context.lineTo(penX, penY);
-        };
         SquareMazeCell.prototype.initialize = function () {
             // TOP
             this.wallList.push(true);
@@ -378,11 +351,8 @@ define("Objects/SquareMazeCell", ["require", "exports", "Objects/MazeCell"], fun
             this.wallList.push(true);
         };
         return SquareMazeCell;
-    }(MazeCell_1.MazeCell));
+    }(MazeGrid_1.MazeCell));
     exports.SquareMazeCell = SquareMazeCell;
-});
-define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/DisjointSet", "DataStructures/LinkedList", "Helpers/PseudoRandom", "Objects/MazeGrid", "Objects/MazeWall", "Objects/SquareMazeCell"], function (require, exports, DisjointSet_1, LinkedList_3, PseudoRandom_1, MazeGrid_1, MazeWall_1, SquareMazeCell_1) {
-    "use strict";
     var SquareMazeGrid = (function (_super) {
         __extends(SquareMazeGrid, _super);
         function SquareMazeGrid(width, height) {
@@ -391,69 +361,70 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             this.gridHeight = height;
             this.initGrid();
         }
-        SquareMazeGrid.prototype.generate = function (seed) {
+        SquareMazeGrid.generate = function (width, height, seed) {
             if (seed === void 0) { seed = 1; }
-            this.wallList = new WallList();
-            var ind;
+            var mazeGrid = new SquareMazeGrid(width, height);
+            var wallList = new LinkedList_2.LinkedList();
             var wall;
-            for (var x = 0; x < this.gridWidth; x++) {
-                for (var y = 0; y < this.gridHeight; y++) {
-                    ind = (x << this.shift) | y;
-                    var cellA = this.grid[ind];
+            for (var x = 0; x < mazeGrid.width; x++) {
+                for (var y = 0; y < mazeGrid.height; y++) {
+                    var cellA = mazeGrid.getCell(x, y);
                     var cellB = void 0;
                     if (x > 0) {
-                        ind = ((x - 1) << this.shift) | y;
-                        cellB = this.grid[ind];
+                        cellB = mazeGrid.getCell(x - 1, y);
                         if (cellB != null) {
-                            wall = new MazeWall_1.MazeWall(cellA, cellB);
-                            if (!this.wallList.contains(wall)) {
-                                this.wallList.append(wall);
+                            wall = new MazeGrid_1.MazeWall(cellA, cellB);
+                            if (!wallList.contains(wall)) {
+                                wallList.append(wall);
                             }
                         }
                     }
                     if (y > 0) {
-                        ind = (x << this.shift) | (y - 1);
-                        cellB = this.grid[ind];
+                        cellB = mazeGrid.getCell(x, y - 1);
                         if (cellB != null) {
-                            wall = new MazeWall_1.MazeWall(cellA, cellB);
-                            if (!this.wallList.contains(wall)) {
-                                this.wallList.append(wall);
+                            wall = new MazeGrid_1.MazeWall(cellA, cellB);
+                            if (!wallList.contains(wall)) {
+                                wallList.append(wall);
                             }
                         }
                     }
-                    if (x < (this.gridWidth - 1)) {
-                        ind = ((x + 1) << this.shift) | y;
-                        cellB = this.grid[ind];
+                    if (x < (mazeGrid.width - 1)) {
+                        cellB = mazeGrid.getCell(x + 1, y);
                         if (cellB != null) {
-                            wall = new MazeWall_1.MazeWall(cellA, cellB);
-                            if (!this.wallList.contains(wall)) {
-                                this.wallList.append(wall);
+                            wall = new MazeGrid_1.MazeWall(cellA, cellB);
+                            if (!wallList.contains(wall)) {
+                                wallList.append(wall);
                             }
                         }
                     }
-                    if (y < (this.gridHeight - 1)) {
-                        ind = (x << this.shift) | (y + 1);
-                        cellB = this.grid[ind];
+                    if (y < (mazeGrid.height - 1)) {
+                        cellB = mazeGrid.getCell(x, y + 1);
                         if (cellB != null) {
-                            wall = new MazeWall_1.MazeWall(cellA, cellB);
-                            if (!this.wallList.contains(wall)) {
-                                this.wallList.append(wall);
+                            wall = new MazeGrid_1.MazeWall(cellA, cellB);
+                            if (!wallList.contains(wall)) {
+                                wallList.append(wall);
                             }
                         }
                     }
+                }
+                return mazeGrid;
+            }
+            var sets = new DisjointSet_1.DisjointSet(mazeGrid.width * mazeGrid.height);
+            for (var x = 0; x < mazeGrid.width; x++) {
+                for (var y = 0; y < mazeGrid.height; y++) {
+                    var cell = mazeGrid.getCell(x, y);
+                    sets.createSet(cell);
                 }
             }
             var prng = new PseudoRandom_1.PseudoRandom();
             prng.seed = seed > 0 ? seed : new Date().getTime();
-            this.wallList.shuffle(prng);
-            while (this.wallList.size > 0) {
-                wall = this.wallList.removeHead();
-                var indA = (wall.cellA.xPos << this.shift) | wall.cellA.yPos;
-                var indB = (wall.cellB.xPos << this.shift) | wall.cellB.yPos;
-                if (this.ds.findSet(indA) === this.ds.findSet(indB)) {
+            wallList.shuffle(prng);
+            while (wallList.size > 0) {
+                wall = wallList.removeHead();
+                if (sets.findSet(wall.cellA) === sets.findSet(wall.cellB)) {
                     continue;
                 }
-                this.ds.mergeSet(indA, indB);
+                sets.mergeSet(wall.cellA, wall.cellB);
                 if (wall.cellA.xPos > wall.cellB.xPos) {
                     wall.cellA.removeWall(3 /* Left */);
                     wall.cellB.removeWall(1 /* Right */);
@@ -472,56 +443,11 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                 }
             }
             // Add start and end.
-            this.createExitCells(prng);
-        };
-        SquareMazeGrid.prototype.render = function (context, scale) {
-            context.strokeStyle = "#000000";
-            context.lineWidth = 0.5;
-            context.beginPath();
-            for (var x = 0; x < this.gridWidth; x++) {
-                for (var y = 0; y < this.gridHeight; y++) {
-                    var cell = this.getCell(x, y);
-                    this.renderWalls(context, cell, scale);
-                }
-            }
-            context.stroke();
-            if (this.startCell) {
-                context.fillStyle = "#008800";
-                context.beginPath();
-                this.startCell.render(context, scale);
-                context.fill();
-            }
-            if (this.endCell) {
-                context.fillStyle = "#880000";
-                context.beginPath();
-                this.endCell.render(context, scale);
-                context.fill();
-            }
+            mazeGrid.createExitCells(prng);
         };
         SquareMazeGrid.prototype.getCell = function (x, y) {
             var ind = (x << this.shift) | y;
             return this.grid[ind];
-        };
-        SquareMazeGrid.prototype.initGrid = function () {
-            this.shift = 0;
-            var minLength = this.gridWidth * this.gridHeight;
-            var powOfTwo = 1;
-            while (powOfTwo < minLength) {
-                powOfTwo *= 2;
-                this.shift++;
-            }
-            this.grid = new Array(this.gridWidth << this.shift);
-            for (var i = 0; i < this.grid.length; i++) {
-                this.grid[i] = null;
-            }
-            this.ds = new DisjointSet_1.DisjointSet(this.gridWidth * this.gridHeight);
-            for (var x = 0; x < this.gridWidth; x++) {
-                for (var y = 0; y < this.gridHeight; y++) {
-                    var ind = (x << this.shift) | y;
-                    this.grid[ind] = new SquareMazeCell_1.SquareMazeCell(x, y);
-                    this.ds.createSet(ind);
-                }
-            }
         };
         SquareMazeGrid.prototype.createExitCells = function (prng) {
             var outerWall = prng.nextIntRange(0, 3);
@@ -562,7 +488,210 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             }
             this.gridEndCell = this.getCell(xPos, yPos);
         };
-        SquareMazeGrid.prototype.renderWalls = function (context, cell, scale) {
+        SquareMazeGrid.prototype.initGrid = function () {
+            this.shift = 0;
+            var minLength = this.gridWidth * this.gridHeight;
+            var powOfTwo = 1;
+            while (powOfTwo < minLength) {
+                powOfTwo *= 2;
+                this.shift++;
+            }
+            this.grid = new Array(this.gridWidth << this.shift);
+            for (var x = 0; x < this.gridWidth; x++) {
+                for (var y = 0; y < this.gridHeight; y++) {
+                    var ind = (x << this.shift) | y;
+                    this.grid[ind] = new SquareMazeCell(x, y);
+                }
+            }
+        };
+        return SquareMazeGrid;
+    }(MazeGrid_1.MazeGrid));
+    exports.SquareMazeGrid = SquareMazeGrid;
+});
+define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/LinkedList"], function (require, exports, LinkedList_3) {
+    "use strict";
+    var SquareMazeSolver = (function () {
+        function SquareMazeSolver() {
+        }
+        SquareMazeSolver.solve = function (maze) {
+            var facing;
+            var path = new LinkedList_3.LinkedList();
+            if (maze.startCell.yPos === 0) {
+                facing = 2 /* Bottom */;
+            }
+            else if (maze.startCell.xPos === maze.width - 1) {
+                facing = 3 /* Left */;
+            }
+            else if (maze.startCell.yPos === maze.height - 1) {
+                facing = 0 /* Top */;
+            }
+            else {
+                facing = 1 /* Right */;
+            }
+            var cell;
+            var lastCell;
+            var nextCell;
+            var x;
+            var y;
+            while (!path.contains(maze.endCell)) {
+                lastCell = cell;
+                cell = path.tail.data;
+                var w = SquareMazeSolver.getRightHandWall(facing);
+                if (cell.hasWall(w)) {
+                    if (cell.hasWall(facing)) {
+                        facing = SquareMazeSolver.getLeftHandWall(facing);
+                    }
+                    else {
+                        x = cell.xPos;
+                        y = cell.yPos;
+                        switch (facing) {
+                            case 0 /* Top */:
+                                y--;
+                                break;
+                            case 2 /* Bottom */:
+                                y++;
+                                break;
+                            case 3 /* Left */:
+                                x--;
+                                break;
+                            case 1 /* Right */:
+                                x++;
+                                break;
+                            default:
+                                break;
+                        }
+                        nextCell = maze.getCell(x, y);
+                        if (nextCell != null) {
+                            if (path.contains(nextCell)) {
+                                path.tail.unlink();
+                            }
+                            else if (nextCell === lastCell) {
+                                path.tail.unlink();
+                            }
+                            else {
+                                path.append(nextCell);
+                            }
+                        }
+                    }
+                }
+                else {
+                    facing = SquareMazeSolver.getRightHandWall(facing);
+                    x = cell.xPos;
+                    y = cell.yPos;
+                    switch (facing) {
+                        case 0 /* Top */:
+                            y--;
+                            break;
+                        case 2 /* Bottom */:
+                            y++;
+                            break;
+                        case 3 /* Left */:
+                            x--;
+                            break;
+                        case 1 /* Right */:
+                            x++;
+                            break;
+                        default:
+                            break;
+                    }
+                    nextCell = maze.getCell(x, y);
+                    if (nextCell != null) {
+                        if (path.contains(nextCell)) {
+                            path.tail.unlink();
+                        }
+                        else if (nextCell === lastCell) {
+                            path.tail.unlink();
+                        }
+                        else {
+                            path.append(nextCell);
+                        }
+                    }
+                }
+            }
+            return path;
+        };
+        SquareMazeSolver.getRightHandWall = function (facing) {
+            switch (facing) {
+                case 0 /* Top */:
+                    return 1 /* Right */;
+                case 1 /* Right */:
+                    return 2 /* Bottom */;
+                case 2 /* Bottom */:
+                    return 3 /* Left */;
+                case 3 /* Left */:
+                    return 0 /* Top */;
+                default:
+                    throw new Error();
+            }
+        };
+        SquareMazeSolver.getLeftHandWall = function (facing) {
+            switch (facing) {
+                case 0 /* Top */:
+                    return 3 /* Left */;
+                case 3 /* Left */:
+                    return 2 /* Bottom */;
+                case 2 /* Bottom */:
+                    return 1 /* Right */;
+                case 1 /* Right */:
+                    return 0 /* Top */;
+                default:
+                    throw new Error();
+            }
+        };
+        SquareMazeSolver.RIGHT_HAND = 0;
+        SquareMazeSolver.LEFT_HAND = 1;
+        return SquareMazeSolver;
+    }());
+    exports.SquareMazeSolver = SquareMazeSolver;
+});
+define("Main", ["require", "exports", "Objects/SquareMazeGrid", "Objects/SquareMazeSolver"], function (require, exports, SquareMazeGrid_1, SquareMazeSolver_1) {
+    "use strict";
+    var Main = (function () {
+        function Main(canvas) {
+            this.canvas = canvas;
+            this.context = this.canvas.getContext("2d");
+        }
+        Main.prototype.generateMaze = function (width, height, seed) {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.maze = SquareMazeGrid_1.SquareMazeGrid.generate(width, height, seed);
+            var scale = 1;
+            if (height < width) {
+                scale = this.canvas.width / width;
+            }
+            else {
+                scale = this.canvas.height / height;
+            }
+            this.renderGrid(this.context, this.maze, scale);
+        };
+        Main.prototype.solveMaze = function () {
+            var path = SquareMazeSolver_1.SquareMazeSolver.solve(this.maze);
+            var scale = 1;
+            if (this.maze.height < this.maze.width) {
+                scale = this.canvas.width / this.maze.width;
+            }
+            else {
+                scale = this.canvas.height / this.maze.height;
+            }
+            this.renderPath(this.context, path, scale);
+        };
+        Main.prototype.renderCell = function (context, cell, scale) {
+            if (scale === void 0) { scale = 1.0; }
+            var xOffset = cell.xPos * scale;
+            var yOffset = cell.yPos * scale;
+            var penX = xOffset;
+            var penY = yOffset;
+            context.moveTo(penX, penY);
+            penX += scale;
+            context.lineTo(penX, penY);
+            penY += scale;
+            context.lineTo(penX, penY);
+            penX = xOffset;
+            context.lineTo(penX, penY);
+            penY = yOffset;
+            context.lineTo(penX, penY);
+        };
+        Main.prototype.renderWalls = function (context, cell, scale) {
+            if (scale === void 0) { scale = 1.0; }
             var xOffset = cell.xPos * scale;
             var yOffset = cell.yPos * scale;
             var penX = xOffset;
@@ -597,208 +726,41 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                 context.moveTo(penX, penY);
             }
         };
-        return SquareMazeGrid;
-    }(MazeGrid_1.MazeGrid));
-    exports.SquareMazeGrid = SquareMazeGrid;
-    var WallList = (function (_super) {
-        __extends(WallList, _super);
-        function WallList() {
-            _super.apply(this, arguments);
-        }
-        WallList.prototype.contains = function (data) {
-            var node = this.head;
-            while (node != null) {
-                if (node.data.equals(data)) {
-                    return true;
+        Main.prototype.renderGrid = function (context, maze, scale) {
+            if (scale === void 0) { scale = 1.0; }
+            context.strokeStyle = "#000000";
+            context.lineWidth = 0.5;
+            context.beginPath();
+            for (var x = 0; x < maze.width; x++) {
+                for (var y = 0; y < maze.height; y++) {
+                    var cell = maze.getCell(x, y);
+                    this.renderWalls(context, cell, scale);
                 }
-                node = node.next;
             }
-            return false;
-        };
-        WallList.prototype.nodeOf = function (data, from) {
-            if (from === void 0) { from = null; }
-            var node = from == null ? this.head : from;
-            while (node != null) {
-                if (node.data.equals(data)) {
-                    break;
-                }
-                node = node.next;
+            context.stroke();
+            if (maze.startCell) {
+                context.fillStyle = "#008800";
+                context.beginPath();
+                this.renderCell(context, maze.startCell, scale);
+                context.fill();
             }
-            return node;
-        };
-        return WallList;
-    }(LinkedList_3.LinkedList));
-});
-define("Objects/SquareMazeSolver", ["require", "exports", "Objects/MazeSolver"], function (require, exports, MazeSolver_1) {
-    "use strict";
-    var SquareMazeSolver = (function (_super) {
-        __extends(SquareMazeSolver, _super);
-        function SquareMazeSolver(maze) {
-            _super.call(this, maze);
-        }
-        SquareMazeSolver.prototype.solve = function () {
-            if (this.maze.startCell.yPos === 0) {
-                this.facing = 2 /* Bottom */;
-            }
-            else if (this.maze.startCell.xPos === this.maze.width - 1) {
-                this.facing = 3 /* Left */;
-            }
-            else if (this.maze.startCell.yPos === this.maze.height - 1) {
-                this.facing = 0 /* Top */;
-            }
-            else {
-                this.facing = 1 /* Right */;
-            }
-            var cell;
-            var lastCell;
-            var nextCell;
-            var x;
-            var y;
-            while (!this.path.contains(this.maze.endCell)) {
-                lastCell = cell;
-                cell = this.path.tail.data;
-                var w = this.getRightHandWall();
-                if (cell.hasWall(w)) {
-                    if (cell.hasWall(this.facing)) {
-                        this.facing = this.getLeftHandWall();
-                    }
-                    else {
-                        x = cell.xPos;
-                        y = cell.yPos;
-                        if (this.facing === 0 /* Top */) {
-                            y--;
-                        }
-                        else if (this.facing === 2 /* Bottom */) {
-                            y++;
-                        }
-                        else if (this.facing === 3 /* Left */) {
-                            x--;
-                        }
-                        else if (this.facing === 1 /* Right */) {
-                            x++;
-                        }
-                        nextCell = this.maze.getCell(x, y);
-                        if (nextCell != null) {
-                            if (this.path.contains(nextCell)) {
-                                this.path.tail.unlink();
-                            }
-                            else if (nextCell === lastCell) {
-                                this.path.tail.unlink();
-                            }
-                            else {
-                                this.path.append(nextCell);
-                            }
-                        }
-                    }
-                }
-                else {
-                    this.facing = this.getRightHandWall();
-                    x = cell.xPos;
-                    y = cell.yPos;
-                    if (this.facing === 0 /* Top */) {
-                        y--;
-                    }
-                    else if (this.facing === 2 /* Bottom */) {
-                        y++;
-                    }
-                    else if (this.facing === 3 /* Left */) {
-                        x--;
-                    }
-                    else if (this.facing === 1 /* Right */) {
-                        x++;
-                    }
-                    nextCell = this.maze.getCell(x, y);
-                    if (nextCell != null) {
-                        if (this.path.contains(nextCell)) {
-                            this.path.tail.unlink();
-                        }
-                        else if (nextCell === lastCell) {
-                            this.path.tail.unlink();
-                        }
-                        else {
-                            this.path.append(nextCell);
-                        }
-                    }
-                }
+            if (maze.endCell) {
+                context.fillStyle = "#880000";
+                context.beginPath();
+                this.renderCell(context, maze.endCell, scale);
+                context.fill();
             }
         };
-        SquareMazeSolver.prototype.render = function (context, scale) {
+        Main.prototype.renderPath = function (context, path, scale) {
+            if (scale === void 0) { scale = 1.0; }
             context.fillStyle = "#33888866";
             context.beginPath();
-            var itr = this.path.iterator;
+            var itr = path.iterator;
             while (itr.hasNext()) {
                 var cell = itr.next();
-                cell.render(context, scale);
+                this.renderCell(context, cell, scale);
             }
             context.fill();
-        };
-        SquareMazeSolver.prototype.getRightHandWall = function () {
-            if (this.facing === 0 /* Top */) {
-                return 1 /* Right */;
-            }
-            if (this.facing === 1 /* Right */) {
-                return 2 /* Bottom */;
-            }
-            if (this.facing === 2 /* Bottom */) {
-                return 3 /* Left */;
-            }
-            if (this.facing === 3 /* Left */) {
-                return 0 /* Top */;
-            }
-            return Number.NaN;
-        };
-        SquareMazeSolver.prototype.getLeftHandWall = function () {
-            if (this.facing === 0 /* Top */) {
-                return 3 /* Left */;
-            }
-            if (this.facing === 3 /* Left */) {
-                return 2 /* Bottom */;
-            }
-            if (this.facing === 2 /* Bottom */) {
-                return 1 /* Right */;
-            }
-            if (this.facing === 1 /* Right */) {
-                return 0 /* Top */;
-            }
-            return Number.NaN;
-        };
-        SquareMazeSolver.RIGHT_HAND = 0;
-        SquareMazeSolver.LEFT_HAND = 1;
-        return SquareMazeSolver;
-    }(MazeSolver_1.MazeSolver));
-    exports.SquareMazeSolver = SquareMazeSolver;
-});
-define("Main", ["require", "exports", "Objects/SquareMazeGrid", "Objects/SquareMazeSolver"], function (require, exports, SquareMazeGrid_1, SquareMazeSolver_1) {
-    "use strict";
-    var Main = (function () {
-        function Main(canvas) {
-            this.canvas = canvas;
-            this.context = this.canvas.getContext("2d");
-        }
-        Main.prototype.generateMaze = function (width, height, seed) {
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.maze = new SquareMazeGrid_1.SquareMazeGrid(width, height);
-            this.maze.generate(seed);
-            var scale = 1;
-            if (height < width) {
-                scale = this.canvas.width / width;
-            }
-            else {
-                scale = this.canvas.height / height;
-            }
-            this.maze.render(this.context, scale);
-        };
-        Main.prototype.solveMaze = function () {
-            this.solver = new SquareMazeSolver_1.SquareMazeSolver(this.maze);
-            this.solver.solve();
-            var scale = 1;
-            if (this.maze.height < this.maze.width) {
-                scale = this.canvas.width / this.maze.width;
-            }
-            else {
-                scale = this.canvas.height / this.maze.height;
-            }
-            this.solver.render(this.context, scale);
         };
         return Main;
     }());

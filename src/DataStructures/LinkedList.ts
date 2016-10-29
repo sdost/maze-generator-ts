@@ -1,14 +1,15 @@
 import { PseudoRandom } from "../Helpers/PseudoRandom";
+import { IComparable } from "./IComparable";
 
-export class ListNode {
-  public data: any;
+export class ListNode<T extends IComparable> {
+  public data: T;
 
-  public prev: ListNode;
-  public next: ListNode;
+  public prev: ListNode<T>;
+  public next: ListNode<T>;
 
-  public list: LinkedList;
+  public list: LinkedList<T>;
 
-  constructor(data: any, list: LinkedList) {
+  constructor(data: T, list: LinkedList<T>) {
     this.next = this.prev = null;
     this.data = data;
     this.list = list;
@@ -19,9 +20,9 @@ export class ListNode {
   }
 }
 
-export class LinkedList {
-  public head: ListNode;
-  public tail: ListNode;
+export class LinkedList<T extends IComparable> {
+  public head: ListNode<T>;
+  public tail: ListNode<T>;
   public size: number;
 
   constructor() {
@@ -29,8 +30,8 @@ export class LinkedList {
     this.size = 0;
   }
 
-  public append(data: any): ListNode {
-    let node: ListNode = this.createNode(data);
+  public append(data: T): ListNode<T> {
+    let node: ListNode<T> = this.createNode(data);
 
     if ( this.tail != null ) {
       node.prev = this.tail;
@@ -45,8 +46,8 @@ export class LinkedList {
     return node;
   }
 
-  public prepend(data: any): void {
-    let node: ListNode = this.createNode(data);
+  public prepend(data: T): void {
+    let node: ListNode<T> = this.createNode(data);
 
     if ( this.head != null ) {
       node.next = this.head;
@@ -59,12 +60,12 @@ export class LinkedList {
     this.size++;
   }
 
-  public createNode(data: any): ListNode {
-    return new ListNode(data, this);
+  public createNode(data: T): ListNode<T> {
+    return new ListNode<T>(data, this);
   }
 
-  public removeHead(): any {
-    let node: ListNode = this.head;
+  public removeHead(): T {
+    let node: ListNode<T> = this.head;
     if (this.size > 1) {
       this.head = this.head.next;
       if (this.head == null) {
@@ -79,8 +80,8 @@ export class LinkedList {
     return node.data;
   }
 
-  public removeTail(): any {
-    let node: ListNode = this.tail;
+  public removeTail(): T {
+    let node: ListNode<T> = this.tail;
     if (this.size > 1) {
       this.tail = this.tail.prev;
       if (this.tail == null) {
@@ -95,14 +96,14 @@ export class LinkedList {
     return node.data;
   }
 
-  public unlink(node: ListNode): ListNode {
+  public unlink(node: ListNode<T>): ListNode<T> {
     if (node === this.head) {
       this.head = this.head.next;
     } else if (node === this.tail) {
       this.tail = this.tail.prev;
     }
 
-    let temp: ListNode = node.next;
+    let temp: ListNode<T> = node.next;
     if (node.prev != null) {
       node.prev.next = node.next;
     }
@@ -119,9 +120,9 @@ export class LinkedList {
     return temp;
   }
 
-  public merge(list: LinkedList): void {
+  public merge(list: LinkedList<T>): void {
     if (list.head != null) {
-      let node: ListNode = list.head;
+      let node: ListNode<T> = list.head;
       for (let i: number = 0; i < list.size; i++) {
         node.list = this;
         node = node.next;
@@ -143,15 +144,15 @@ export class LinkedList {
     this.head = this.tail = null;
   }
 
-  public get iterator(): ListIterator {
-    return new ListIterator(this);
+  public get iterator(): ListIterator<T> {
+    return new ListIterator<T>(this);
   }
 
-  public nodeOf(data: any, from: ListNode = null): ListNode {
-    let node: ListNode = from == null ? this.head : from;
+  public nodeOf(data: T, from: ListNode<T> = null): ListNode<T> {
+    let node: ListNode<T> = from == null ? this.head : from;
 
     while (node != null) {
-      if (node.data === data) {
+      if (node.data.equals(data)) {
         break;
       }
       node = node.next;
@@ -159,10 +160,10 @@ export class LinkedList {
     return node;
   }
 
-  public contains(data: any): Boolean {
-    let node: ListNode = this.head;
+  public contains(data: T): Boolean {
+    let node: ListNode<T> = this.head;
     while (node != null) {
-      if (node.data === data) {
+      if (node.data.equals(data)) {
         return true;
       }
       node = node.next;
@@ -175,16 +176,16 @@ export class LinkedList {
     while (s > 1) {
       s--;
       let i: number = prng.nextIntRange(0, s);
-      let node1: ListNode = this.head;
+      let node1: ListNode<T> = this.head;
 
       let j: number;
       for (j = 0; j < s; j++) {
         node1 = node1.next;
       }
 
-      let t: any = node1.data;
+      let t: T = node1.data;
 
-      let node2: ListNode = this.head;
+      let node2: ListNode<T> = this.head;
       for (j = 0; j < i; j++) {
         node2 = node2.next;
       }
@@ -195,11 +196,11 @@ export class LinkedList {
   }
 }
 
-export class ListIterator {
-  private list: LinkedList;
-  private walker: ListNode;
+export class ListIterator<T extends IComparable> {
+  private list: LinkedList<T>;
+  private walker: ListNode<T>;
 
-  constructor(list: LinkedList) {
+  constructor(list: LinkedList<T>) {
     this.list = list;
     this.reset();
   }
