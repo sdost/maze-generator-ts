@@ -513,93 +513,69 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
     var SquareMazeRenderer = (function () {
         function SquareMazeRenderer() {
         }
-        SquareMazeRenderer.renderCell = function (context, cell, scale) {
+        SquareMazeRenderer.renderCell = function (img, cell, scale, r, g, b, a) {
             if (scale === void 0) { scale = 1.0; }
             var xOffset = cell.xPos * scale;
             var yOffset = cell.yPos * scale;
-            var penX = xOffset;
-            var penY = yOffset;
-            context.moveTo(penX, penY);
-            penX += scale;
-            context.lineTo(penX, penY);
-            penY += scale;
-            context.lineTo(penX, penY);
-            penX = xOffset;
-            context.lineTo(penX, penY);
-            penY = yOffset;
-            context.lineTo(penX, penY);
+            SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset + scale, yOffset + scale, r, g, b, a);
         };
-        SquareMazeRenderer.renderWalls = function (context, cell, scale) {
+        SquareMazeRenderer.renderWalls = function (img, cell, scale, r, g, b, a) {
             if (scale === void 0) { scale = 1.0; }
             var xOffset = cell.xPos * scale;
             var yOffset = cell.yPos * scale;
-            var penX = xOffset;
-            var penY = yOffset;
-            context.moveTo(penX, penY);
-            penX += scale;
             if (cell.hasWall(0 /* Top */)) {
-                context.lineTo(penX, penY);
+                SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset + scale, yOffset, r, g, b, a);
             }
-            else {
-                context.moveTo(penX, penY);
-            }
-            penY += scale;
             if (cell.hasWall(1 /* Right */)) {
-                context.lineTo(penX, penY);
+                SquareMazeRenderer.drawRect(img, xOffset + scale, yOffset, xOffset + scale, yOffset + scale, r, g, b, a);
             }
-            else {
-                context.moveTo(penX, penY);
-            }
-            penX = xOffset;
             if (cell.hasWall(2 /* Bottom */)) {
-                context.lineTo(penX, penY);
+                SquareMazeRenderer.drawRect(img, xOffset, yOffset + scale, xOffset + scale, yOffset + scale, r, g, b, a);
             }
-            else {
-                context.moveTo(penX, penY);
-            }
-            penY = yOffset;
             if (cell.hasWall(3 /* Left */)) {
-                context.lineTo(penX, penY);
-            }
-            else {
-                context.moveTo(penX, penY);
+                SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset, yOffset + scale, r, g, b, a);
             }
         };
-        SquareMazeRenderer.renderGrid = function (context, maze, scale) {
+        SquareMazeRenderer.renderGrid = function (img, maze, scale) {
             if (scale === void 0) { scale = 1.0; }
-            context.strokeStyle = "#000000";
-            context.lineWidth = 0.5;
-            context.beginPath();
             for (var x = 0; x < maze.width; x++) {
                 for (var y = 0; y < maze.height; y++) {
                     var cell = maze.getCell(x, y);
-                    SquareMazeRenderer.renderWalls(context, cell, scale);
+                    SquareMazeRenderer.renderWalls(img, cell, scale, 0, 0, 0, 1.0);
                 }
             }
-            context.stroke();
             if (maze.startCell) {
-                context.fillStyle = "#008800";
-                context.beginPath();
-                SquareMazeRenderer.renderCell(context, maze.startCell, scale);
-                context.fill();
+                SquareMazeRenderer.renderCell(img, maze.startCell, scale, 0, 0.8, 0, 1.0);
             }
             if (maze.endCell) {
-                context.fillStyle = "#880000";
-                context.beginPath();
-                SquareMazeRenderer.renderCell(context, maze.endCell, scale);
-                context.fill();
+                SquareMazeRenderer.renderCell(img, maze.endCell, scale, 0.8, 0, 0, 1.0);
             }
         };
-        SquareMazeRenderer.renderPath = function (context, path, scale) {
+        SquareMazeRenderer.renderPath = function (img, path, scale) {
             if (scale === void 0) { scale = 1.0; }
-            context.fillStyle = "#33888866";
-            context.beginPath();
             var itr = path.iterator;
             while (itr.hasNext()) {
                 var cell = itr.next();
-                SquareMazeRenderer.renderCell(context, cell, scale);
+                SquareMazeRenderer.renderCell(img, cell, scale, 0.3, 0.8, 0.8, 0.4);
             }
-            context.fill();
+        };
+        SquareMazeRenderer.setPixel = function (img, x, y, r, g, b, a) {
+            var index = (x + y * img.width) * 4;
+            var invAlpha = 1.0 - a;
+            r *= a;
+            g *= a;
+            b *= a;
+            img.data[index + 0] = (img.data[index + 0] * invAlpha) + (255 * r);
+            img.data[index + 1] = (img.data[index + 1] * invAlpha) + (255 * g);
+            img.data[index + 2] = (img.data[index + 2] * invAlpha) + (255 * b);
+            img.data[index + 3] = (img.data[index + 3] * invAlpha) + (255 * a);
+        };
+        SquareMazeRenderer.drawRect = function (img, x0, y0, x1, y1, r, g, b, a) {
+            for (var x = x0; x <= x1; x++) {
+                for (var y = y0; y <= y1; y++) {
+                    SquareMazeRenderer.setPixel(img, x, y, r, g, b, a);
+                }
+            }
         };
         return SquareMazeRenderer;
     }());
@@ -742,39 +718,33 @@ define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/Linked
     }());
     exports.SquareMazeSolver = SquareMazeSolver;
 });
-define("Main", ["require", "exports", "Objects/SquareMazeGrid", "Objects/SquareMazeRenderer", "Objects/SquareMazeSolver"], function (require, exports, SquareMazeGrid_1, SquareMazeRenderer_1, SquareMazeSolver_1) {
+define("MazeWorker", ["require", "exports", "Objects/SquareMazeGrid", "Objects/SquareMazeRenderer", "Objects/SquareMazeSolver"], function (require, exports, SquareMazeGrid_1, SquareMazeRenderer_1, SquareMazeSolver_1) {
     "use strict";
-    var Main = (function () {
-        function Main(canvas) {
-            this.canvas = canvas;
-            this.context = this.canvas.getContext("2d");
+    var MazeWorker = (function () {
+        function MazeWorker() {
         }
-        Main.prototype.generateMaze = function (width, height, seed) {
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        MazeWorker.prototype.generateMaze = function (width, height, seed) {
+            this.solution = null;
             this.maze = SquareMazeGrid_1.SquareMazeGrid.generate(width, height, seed);
-            var scale = 1;
-            if (height < width) {
-                scale = this.canvas.width / width;
-            }
-            else {
-                scale = this.canvas.height / height;
-            }
-            SquareMazeRenderer_1.SquareMazeRenderer.renderGrid(this.context, this.maze, scale);
         };
-        Main.prototype.solveMaze = function () {
-            var path = SquareMazeSolver_1.SquareMazeSolver.solve(this.maze);
-            var scale = 1;
-            if (this.maze.height < this.maze.width) {
-                scale = this.canvas.width / this.maze.width;
+        MazeWorker.prototype.solveMaze = function () {
+            if (this.maze) {
+                this.solution = SquareMazeSolver_1.SquareMazeSolver.solve(this.maze);
             }
-            else {
-                scale = this.canvas.height / this.maze.height;
-            }
-            SquareMazeRenderer_1.SquareMazeRenderer.renderPath(this.context, path, scale);
         };
-        return Main;
+        MazeWorker.prototype.render = function (img) {
+            if (this.maze) {
+                var hScale = Math.floor(img.width / this.maze.width);
+                var vScale = Math.floor(img.height / this.maze.height);
+                SquareMazeRenderer_1.SquareMazeRenderer.renderGrid(img, this.maze, (hScale < vScale) ? hScale : vScale);
+                if (this.solution) {
+                    SquareMazeRenderer_1.SquareMazeRenderer.renderPath(img, this.solution, (hScale < vScale) ? hScale : vScale);
+                }
+            }
+            return img;
+        };
+        return MazeWorker;
     }());
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.default = Main;
+    exports.MazeWorker = MazeWorker;
 });
 //# sourceMappingURL=tsc.js.map

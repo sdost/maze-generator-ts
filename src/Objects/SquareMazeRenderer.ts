@@ -2,109 +2,90 @@ import { LinkedList, ListIterator } from "../DataStructures/LinkedList";
 import { SquareMazeCell, SquareMazeGrid, SquareWall } from "./SquareMazeGrid";
 
 export class SquareMazeRenderer {
-  public static renderCell(context: CanvasRenderingContext2D, cell: SquareMazeCell, scale: number = 1.0): void {
+  public static renderCell(img: ImageData,
+                           cell: SquareMazeCell,
+                           scale: number = 1.0,
+                           r: number, g: number, b: number, a: number): void {
     const xOffset: number = cell.xPos * scale;
     const yOffset: number = cell.yPos * scale;
 
-    let penX: number = xOffset;
-    let penY: number = yOffset;
-
-    context.moveTo(penX, penY);
-
-    penX += scale;
-    context.lineTo(penX, penY);
-
-    penY += scale;
-    context.lineTo(penX, penY);
-
-    penX = xOffset;
-    context.lineTo(penX, penY);
-
-    penY = yOffset;
-    context.lineTo(penX, penY);
+    SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset + scale, yOffset + scale, r, g, b, a);
   }
 
-  public static renderWalls(context: CanvasRenderingContext2D, cell: SquareMazeCell, scale: number = 1.0): void {
-    let xOffset: number = cell.xPos * scale;
-    let yOffset: number = cell.yPos * scale;
+  public static renderWalls(img: ImageData,
+                            cell: SquareMazeCell,
+                            scale: number = 1.0,
+                            r: number, g: number, b: number, a: number): void {
+    const xOffset: number = cell.xPos * scale;
+    const yOffset: number = cell.yPos * scale;
 
-    let penX: number = xOffset;
-    let penY: number = yOffset;
-
-    context.moveTo(penX, penY);
-
-    penX += scale;
     if ( cell.hasWall(SquareWall.Top) ) {
-      context.lineTo(penX, penY);
-    } else {
-      context.moveTo(penX, penY);
+      SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset + scale, yOffset, r, g, b, a);
     }
 
-    penY += scale;
     if ( cell.hasWall(SquareWall.Right) ) {
-      context.lineTo(penX, penY);
-    } else {
-      context.moveTo(penX, penY);
+      SquareMazeRenderer.drawRect(img, xOffset + scale, yOffset, xOffset + scale, yOffset + scale, r, g, b, a);
     }
 
-    penX = xOffset;
     if ( cell.hasWall(SquareWall.Bottom) ) {
-      context.lineTo(penX, penY);
-    } else {
-      context.moveTo(penX, penY);
+      SquareMazeRenderer.drawRect(img, xOffset, yOffset + scale, xOffset + scale, yOffset + scale, r, g, b, a);
     }
 
-    penY = yOffset;
     if ( cell.hasWall(SquareWall.Left) ) {
-      context.lineTo(penX, penY);
-    } else {
-      context.moveTo(penX, penY);
+      SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset, yOffset + scale, r, g, b, a);
     }
   }
 
-  public static renderGrid(context: CanvasRenderingContext2D, maze: SquareMazeGrid, scale: number = 1.0): void {
-    context.strokeStyle = "#000000";
-    context.lineWidth = 0.5;
-
-    context.beginPath();
-
+  public static renderGrid(img: ImageData,
+                           maze: SquareMazeGrid,
+                           scale: number = 1.0): void {
     for ( let x: number = 0; x < maze.width; x++ ) {
       for ( let y: number = 0; y < maze.height; y++ ) {
         let cell: SquareMazeCell = maze.getCell(x, y) as SquareMazeCell;
-        SquareMazeRenderer.renderWalls(context, cell, scale);
+        SquareMazeRenderer.renderWalls(img, cell, scale, 0, 0, 0, 1.0);
       }
     }
 
-    context.stroke();
-
     if (maze.startCell) {
-      context.fillStyle = "#008800";
-      context.beginPath();
-      SquareMazeRenderer.renderCell(context, maze.startCell as SquareMazeCell, scale);
-      context.fill();
+      SquareMazeRenderer.renderCell(img, maze.startCell as SquareMazeCell, scale, 0, 0.8, 0, 1.0);
     }
 
     if (maze.endCell) {
-      context.fillStyle = "#880000";
-      context.beginPath();
-      SquareMazeRenderer.renderCell(context, maze.endCell as SquareMazeCell, scale);
-      context.fill();
+      SquareMazeRenderer.renderCell(img, maze.endCell as SquareMazeCell, scale, 0.8, 0, 0, 1.0);
     }
   }
 
-  public static renderPath(context: CanvasRenderingContext2D,
+  public static renderPath(img: ImageData,
                            path: LinkedList<SquareMazeCell>,
                            scale: number = 1.0): void {
-    context.fillStyle = "#33888866";
-
-    context.beginPath();
-
     let itr: ListIterator<SquareMazeCell> = path.iterator;
     while (itr.hasNext()) {
       let cell: SquareMazeCell = itr.next();
-      SquareMazeRenderer.renderCell(context, cell, scale);
+      SquareMazeRenderer.renderCell(img, cell, scale, 0.3, 0.8, 0.8, 0.4);
     }
+  }
 
-    context.fill();
+  private static setPixel(img: ImageData, x: number, y: number, r: number, g: number, b: number, a: number): void {
+    let index: number = (x + y * img.width) * 4;
+
+    let invAlpha: number = 1.0 - a;
+
+    r *= a;
+    g *= a;
+    b *= a;
+
+    img.data[index + 0] = (img.data[index + 0] * invAlpha) + (255 * r);
+    img.data[index + 1] = (img.data[index + 1] * invAlpha) + (255 * g);
+    img.data[index + 2] = (img.data[index + 2] * invAlpha) + (255 * b);
+    img.data[index + 3] = (img.data[index + 3] * invAlpha) + (255 * a);
+  }
+
+  private static drawRect(img: ImageData, x0: number, y0: number, x1: number, y1: number,
+                          r: number, g: number, b: number, a: number): void {
+    for (let x: number = x0; x <= x1; x++) {
+      for (let y: number = y0; y <= y1; y++) {
+        SquareMazeRenderer.setPixel(img, x, y, r, g, b, a);
+      }
+    }
   }
 }
