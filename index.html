@@ -29,16 +29,24 @@ resizeCanvas();
 if(window.Worker) {
   var worker = new Worker("worker.js");
   generate.onclick = function() {
+    generate.value = "Loading...";
+    generate.enabled = false;
     context.clearRect(0, 0, canvas.width, canvas.height);
     var data = context.createImageData(canvas.width, canvas.height);
     worker.postMessage({ action: "gen_maze", values: { width: width.value, height: height.value, seed: seed.value, imageData: data } });
   };
   solve.onclick = function() {
+    solve.value = "Loading...";
+    solve.enabled = false;
     context.clearRect(0, 0, canvas.width, canvas.height);
     var data = context.createImageData(canvas.width, canvas.height);
     worker.postMessage({ action: "solve_maze", values: { imageData: data } });
   };
   worker.onmessage = function(e) {
+    generate.value = "Generate Maze";
+    generate.enabled = true;
+    solve.value = "Solve Maze";
+    solve.enabled = true;
     context.putImageData(e.data, 0, 0);
   };
 }
