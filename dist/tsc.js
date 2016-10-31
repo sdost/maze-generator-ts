@@ -524,16 +524,16 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
             var xOffset = cell.xPos * scale;
             var yOffset = cell.yPos * scale;
             if (cell.hasWall(0 /* Top */)) {
-                SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset + scale, yOffset, r, g, b, a);
+                SquareMazeRenderer.drawLine(img, xOffset, yOffset, xOffset + scale, yOffset, r, g, b, a);
             }
             if (cell.hasWall(1 /* Right */)) {
-                SquareMazeRenderer.drawRect(img, xOffset + scale, yOffset, xOffset + scale, yOffset + scale, r, g, b, a);
+                SquareMazeRenderer.drawLine(img, xOffset + scale, yOffset, xOffset + scale, yOffset + scale, r, g, b, a);
             }
             if (cell.hasWall(2 /* Bottom */)) {
-                SquareMazeRenderer.drawRect(img, xOffset, yOffset + scale, xOffset + scale, yOffset + scale, r, g, b, a);
+                SquareMazeRenderer.drawLine(img, xOffset, yOffset + scale, xOffset + scale, yOffset + scale, r, g, b, a);
             }
             if (cell.hasWall(3 /* Left */)) {
-                SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset, yOffset + scale, r, g, b, a);
+                SquareMazeRenderer.drawLine(img, xOffset, yOffset, xOffset, yOffset + scale, r, g, b, a);
             }
         };
         SquareMazeRenderer.renderGrid = function (img, maze, scale) {
@@ -570,9 +570,25 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
             img.data[index + 2] = (img.data[index + 2] * invAlpha) + (255 * b);
             img.data[index + 3] = (img.data[index + 3] * invAlpha) + (255 * a);
         };
-        SquareMazeRenderer.drawRect = function (img, x0, y0, x1, y1, r, g, b, a) {
-            for (var x = x0; x <= x1; x++) {
+        SquareMazeRenderer.drawLine = function (img, x0, y0, x1, y1, r, g, b, a) {
+            var dX = x1 - x0;
+            var dY = Math.abs(y1 - y0);
+            if (dX === 0) {
                 for (var y = y0; y <= y1; y++) {
+                    var x = x1 + dX * (y - y1) / dY;
+                    SquareMazeRenderer.setPixel(img, x, y, r, g, b, a);
+                }
+            }
+            else {
+                for (var x = x0; x <= x1; x++) {
+                    var y = y1 + dY * (x - x1) / dX;
+                    SquareMazeRenderer.setPixel(img, x, y, r, g, b, a);
+                }
+            }
+        };
+        SquareMazeRenderer.drawRect = function (img, x0, y0, x1, y1, r, g, b, a) {
+            for (var x = x0; x < x1; x++) {
+                for (var y = y0; y < y1; y++) {
                     SquareMazeRenderer.setPixel(img, x, y, r, g, b, a);
                 }
             }
