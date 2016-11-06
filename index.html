@@ -54,6 +54,10 @@ if(window.Worker) {
 function resizeCanvas() {
   canvas.width = window.innerWidth - 60;
   canvas.height = window.innerHeight - 60;
+
+  if(worker) {
+    worker.postMessage({ action: "render", values: { imageData: data } });
+  }
 }
 </script>
 </body>

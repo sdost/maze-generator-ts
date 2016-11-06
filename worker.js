@@ -12,6 +12,9 @@ require(['MazeWorker'], function(MazeWorker) {
       worker.solveMaze();
       let data = worker.render(e.data.values.imageData);
       postMessage(data);
+    } else if (e.data.action === "render") {
+      let data = worker.render(e.data.values.imageData);
+      postMessage(data);
     }
   };
 });
