@@ -1,5 +1,5 @@
 importScripts("https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js");
-importScripts("dist/tsc.js");
+importScripts("../dist/tsc.js");
 
 require(['MazeWorker'], function(MazeWorker) {
   let worker = new MazeWorker.MazeWorker();

@@ -1,4 +1,3 @@
-import { PseudoRandom } from "../Helpers/PseudoRandom";
 import { IComparable } from "./IComparable";
 
 export class ListNode<T extends IComparable> {
@@ -169,30 +168,6 @@ export class LinkedList<T extends IComparable> {
       node = node.next;
     }
     return false;
-  }
-
-  public shuffle(prng: PseudoRandom): void {
-    let s: number = this.size;
-    while (s > 1) {
-      s--;
-      let i: number = prng.nextIntRange(0, s);
-      let node1: ListNode<T> = this.head;
-
-      let j: number;
-      for (j = 0; j < s; j++) {
-        node1 = node1.next;
-      }
-
-      let t: T = node1.data;
-
-      let node2: ListNode<T> = this.head;
-      for (j = 0; j < i; j++) {
-        node2 = node2.next;
-      }
-
-      node1.data = node2.data;
-      node2.data = t;
-    }
   }
 }
 

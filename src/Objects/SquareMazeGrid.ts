@@ -1,6 +1,4 @@
 import { DisjointSet } from "../DataStructures/DisjointSet";
-import { IComparable } from "../DataStructures/IComparable";
-import { LinkedList } from "../DataStructures/LinkedList";
 import { PseudoRandom } from "../Helpers/PseudoRandom";
 import { MazeCell, MazeGrid } from "./MazeGrid";
 
@@ -41,7 +39,7 @@ export class SquareMazeCell extends MazeCell {
   }
 }
 
-class SquareMazeWall implements IComparable {
+class SquareMazeWall {
   public cellA: SquareMazeCell;
   public cellB: SquareMazeCell;
 
@@ -50,7 +48,7 @@ class SquareMazeWall implements IComparable {
     this.cellB = cellB;
   }
 
-  public equals(wall: SquareMazeWall): Boolean {
+  public equals(wall: SquareMazeWall): boolean {
     if ( this.cellA === wall.cellA && this.cellB === wall.cellB ) {
       return true;
     }
@@ -74,7 +72,7 @@ export class SquareMazeGrid extends MazeGrid {
     return mazeGrid;
   }
 
-  private wallList: LinkedList<SquareMazeWall>;
+  private wallList: Array<SquareMazeWall>;
   private sets: DisjointSet<SquareMazeCell>;
 
   constructor(width: number, height: number) {
@@ -100,7 +98,8 @@ export class SquareMazeGrid extends MazeGrid {
       }
     }
 
-    this.wallList = new LinkedList<SquareMazeWall>();
+    // this.wallList = new LinkedList<SquareMazeWall>();
+    this.wallList = new Array<SquareMazeWall>();
 
     let wall: SquareMazeWall;
     for ( let x: number = 0; x < this.width; x++ ) {
@@ -114,8 +113,8 @@ export class SquareMazeGrid extends MazeGrid {
           if ( cellB != null ) {
             wall = new SquareMazeWall(cellA, cellB);
 
-            if (!this.wallList.contains(wall)) {
-              this.wallList.append(wall);
+            if (!this.wallList.some(val => wall.equals(val))) {
+              this.wallList.push(wall);
             }
           }
         }
@@ -126,8 +125,8 @@ export class SquareMazeGrid extends MazeGrid {
           if ( cellB != null ) {
             wall = new SquareMazeWall(cellA, cellB);
 
-            if (!this.wallList.contains(wall)) {
-              this.wallList.append(wall);
+            if (!this.wallList.some(val => wall.equals(val))) {
+              this.wallList.push(wall);
             }
           }
         }
@@ -138,8 +137,8 @@ export class SquareMazeGrid extends MazeGrid {
           if ( cellB != null ) {
             wall = new SquareMazeWall(cellA, cellB);
 
-            if (!this.wallList.contains(wall)) {
-              this.wallList.append(wall);
+            if (!this.wallList.some(val => wall.equals(val))) {
+              this.wallList.push(wall);
             }
           }
         }
@@ -150,15 +149,22 @@ export class SquareMazeGrid extends MazeGrid {
           if ( cellB != null ) {
             wall = new SquareMazeWall(cellA, cellB);
 
-            if (!this.wallList.contains(wall)) {
-              this.wallList.append(wall);
+            if (!this.wallList.some(val => wall.equals(val))) {
+              this.wallList.push(wall);
             }
           }
         }
       }
     }
 
-    this.wallList.shuffle(prng);
+    let s: number = this.wallList.length;
+    while (s > 1) {
+      s--;
+      let i: number = prng.nextIntRange(0, s);
+      let temp: SquareMazeWall = this.wallList[s];
+      this.wallList[s] = this.wallList[i];
+      this.wallList[i] = temp;
+    }
 
     this.sets = new DisjointSet<SquareMazeCell>(this.width * this.height);
 
@@ -204,11 +210,11 @@ export class SquareMazeGrid extends MazeGrid {
   }
 
   private getNextWall(): SquareMazeWall {
-    if (this.wallList.size > 0) {
-      let wall: SquareMazeWall = this.wallList.removeHead();
+    if (this.wallList.length > 0) {
+      let wall: SquareMazeWall = this.wallList.pop();
       while (this.sets.findSet(wall.cellA) === this.sets.findSet(wall.cellB)) {
-        if (this.wallList.size > 0) {
-          wall = this.wallList.removeHead();
+        if (this.wallList.length > 0) {
+          wall = this.wallList.pop();
         } else {
           return null;
         }

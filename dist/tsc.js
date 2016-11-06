@@ -6,35 +6,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 define("DataStructures/IComparable", ["require", "exports"], function (require, exports) {
     "use strict";
 });
-define("Helpers/PseudoRandom", ["require", "exports"], function (require, exports) {
-    "use strict";
-    var PseudoRandom = (function () {
-        function PseudoRandom() {
-            this.seed = 1;
-        }
-        PseudoRandom.prototype.nextInt = function () {
-            return this.gen();
-        };
-        PseudoRandom.prototype.nextDouble = function () {
-            return (this.gen() / 2147483647);
-        };
-        PseudoRandom.prototype.nextIntRange = function (min, max) {
-            min -= .4999;
-            max += .4999;
-            return Math.round(min + ((max - min) * this.nextDouble()));
-        };
-        PseudoRandom.prototype.nextDoubleRange = function (min, max) {
-            return min + ((max - min) * this.nextDouble());
-        };
-        PseudoRandom.prototype.gen = function () {
-            var hi = 16807 * (this.seed >> 16);
-            var lo = 16807 * (this.seed & 0xFFFF) + ((hi & 0x7FFF) << 16) + (hi >> 15);
-            return this.seed = (lo > 0x7FFFFFFF ? lo - 0x7FFFFFFF : lo);
-        };
-        return PseudoRandom;
-    }());
-    exports.PseudoRandom = PseudoRandom;
-});
 define("DataStructures/LinkedList", ["require", "exports"], function (require, exports) {
     "use strict";
     var ListNode = (function () {
@@ -181,25 +152,6 @@ define("DataStructures/LinkedList", ["require", "exports"], function (require, e
             }
             return false;
         };
-        LinkedList.prototype.shuffle = function (prng) {
-            var s = this.size;
-            while (s > 1) {
-                s--;
-                var i = prng.nextIntRange(0, s);
-                var node1 = this.head;
-                var j = void 0;
-                for (j = 0; j < s; j++) {
-                    node1 = node1.next;
-                }
-                var t = node1.data;
-                var node2 = this.head;
-                for (j = 0; j < i; j++) {
-                    node2 = node2.next;
-                }
-                node1.data = node2.data;
-                node2.data = t;
-            }
-        };
         return LinkedList;
     }());
     exports.LinkedList = LinkedList;
@@ -258,6 +210,35 @@ define("DataStructures/DisjointSet", ["require", "exports", "DataStructures/Link
     }());
     exports.DisjointSet = DisjointSet;
 });
+define("Helpers/PseudoRandom", ["require", "exports"], function (require, exports) {
+    "use strict";
+    var PseudoRandom = (function () {
+        function PseudoRandom() {
+            this.seed = 1;
+        }
+        PseudoRandom.prototype.nextInt = function () {
+            return this.gen();
+        };
+        PseudoRandom.prototype.nextDouble = function () {
+            return (this.gen() / 2147483647);
+        };
+        PseudoRandom.prototype.nextIntRange = function (min, max) {
+            min -= .4999;
+            max += .4999;
+            return Math.round(min + ((max - min) * this.nextDouble()));
+        };
+        PseudoRandom.prototype.nextDoubleRange = function (min, max) {
+            return min + ((max - min) * this.nextDouble());
+        };
+        PseudoRandom.prototype.gen = function () {
+            var hi = 16807 * (this.seed >> 16);
+            var lo = 16807 * (this.seed & 0xFFFF) + ((hi & 0x7FFF) << 16) + (hi >> 15);
+            return this.seed = (lo > 0x7FFFFFFF ? lo - 0x7FFFFFFF : lo);
+        };
+        return PseudoRandom;
+    }());
+    exports.PseudoRandom = PseudoRandom;
+});
 define("Objects/MazeGrid", ["require", "exports"], function (require, exports) {
     "use strict";
     var MazeCell = (function () {
@@ -304,7 +285,7 @@ define("Objects/MazeGrid", ["require", "exports"], function (require, exports) {
     }());
     exports.MazeGrid = MazeGrid;
 });
-define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/DisjointSet", "DataStructures/LinkedList", "Helpers/PseudoRandom", "Objects/MazeGrid"], function (require, exports, DisjointSet_1, LinkedList_2, PseudoRandom_1, MazeGrid_1) {
+define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/DisjointSet", "Helpers/PseudoRandom", "Objects/MazeGrid"], function (require, exports, DisjointSet_1, PseudoRandom_1, MazeGrid_1) {
     "use strict";
     var SquareMazeCell = (function (_super) {
         __extends(SquareMazeCell, _super);
@@ -384,7 +365,8 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     this.grid[ind] = new SquareMazeCell(x, y);
                 }
             }
-            this.wallList = new LinkedList_2.LinkedList();
+            // this.wallList = new LinkedList<SquareMazeWall>();
+            this.wallList = new Array();
             var wall;
             for (var x = 0; x < this.width; x++) {
                 for (var y = 0; y < this.height; y++) {
@@ -394,8 +376,8 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                         cellB = this.getCell(x - 1, y);
                         if (cellB != null) {
                             wall = new SquareMazeWall(cellA, cellB);
-                            if (!this.wallList.contains(wall)) {
-                                this.wallList.append(wall);
+                            if (!this.wallList.some(function (val) { return wall.equals(val); })) {
+                                this.wallList.push(wall);
                             }
                         }
                     }
@@ -403,8 +385,8 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                         cellB = this.getCell(x, y - 1);
                         if (cellB != null) {
                             wall = new SquareMazeWall(cellA, cellB);
-                            if (!this.wallList.contains(wall)) {
-                                this.wallList.append(wall);
+                            if (!this.wallList.some(function (val) { return wall.equals(val); })) {
+                                this.wallList.push(wall);
                             }
                         }
                     }
@@ -412,8 +394,8 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                         cellB = this.getCell(x + 1, y);
                         if (cellB != null) {
                             wall = new SquareMazeWall(cellA, cellB);
-                            if (!this.wallList.contains(wall)) {
-                                this.wallList.append(wall);
+                            if (!this.wallList.some(function (val) { return wall.equals(val); })) {
+                                this.wallList.push(wall);
                             }
                         }
                     }
@@ -421,14 +403,21 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                         cellB = this.getCell(x, y + 1);
                         if (cellB != null) {
                             wall = new SquareMazeWall(cellA, cellB);
-                            if (!this.wallList.contains(wall)) {
-                                this.wallList.append(wall);
+                            if (!this.wallList.some(function (val) { return wall.equals(val); })) {
+                                this.wallList.push(wall);
                             }
                         }
                     }
                 }
             }
-            this.wallList.shuffle(prng);
+            var s = this.wallList.length;
+            while (s > 1) {
+                s--;
+                var i = prng.nextIntRange(0, s);
+                var temp = this.wallList[s];
+                this.wallList[s] = this.wallList[i];
+                this.wallList[i] = temp;
+            }
             this.sets = new DisjointSet_1.DisjointSet(this.width * this.height);
             for (var x = 0; x < this.width; x++) {
                 for (var y = 0; y < this.height; y++) {
@@ -470,11 +459,11 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             return this.grid[ind];
         };
         SquareMazeGrid.prototype.getNextWall = function () {
-            if (this.wallList.size > 0) {
-                var wall = this.wallList.removeHead();
+            if (this.wallList.length > 0) {
+                var wall = this.wallList.pop();
                 while (this.sets.findSet(wall.cellA) === this.sets.findSet(wall.cellB)) {
-                    if (this.wallList.size > 0) {
-                        wall = this.wallList.removeHead();
+                    if (this.wallList.length > 0) {
+                        wall = this.wallList.pop();
                     }
                     else {
                         return null;
@@ -629,12 +618,12 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
     }());
     exports.SquareMazeRenderer = SquareMazeRenderer;
 });
-define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/LinkedList"], function (require, exports, LinkedList_3) {
+define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/LinkedList"], function (require, exports, LinkedList_2) {
     "use strict";
     var SquareMazeSolver = (function () {
         function SquareMazeSolver(maze) {
             this.maze = maze;
-            this.currentPath = new LinkedList_3.LinkedList();
+            this.currentPath = new LinkedList_2.LinkedList();
             this.currentPath.append(this.maze.startCell);
             if (this.maze.startCell.yPos === 0) {
                 this.facing = 2 /* Bottom */;
