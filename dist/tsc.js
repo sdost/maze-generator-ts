@@ -276,23 +276,6 @@ define("Objects/MazeGrid", ["require", "exports"], function (require, exports) {
         return MazeCell;
     }());
     exports.MazeCell = MazeCell;
-    var MazeWall = (function () {
-        function MazeWall(cellA, cellB) {
-            this.cellA = cellA;
-            this.cellB = cellB;
-        }
-        MazeWall.prototype.equals = function (wall) {
-            if (this.cellA === wall.cellA && this.cellB === wall.cellB) {
-                return true;
-            }
-            if (this.cellB === wall.cellA && this.cellA === wall.cellB) {
-                return true;
-            }
-            return false;
-        };
-        return MazeWall;
-    }());
-    exports.MazeWall = MazeWall;
     var MazeGrid = (function () {
         function MazeGrid() {
         }
@@ -353,6 +336,22 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
         return SquareMazeCell;
     }(MazeGrid_1.MazeCell));
     exports.SquareMazeCell = SquareMazeCell;
+    var SquareMazeWall = (function () {
+        function SquareMazeWall(cellA, cellB) {
+            this.cellA = cellA;
+            this.cellB = cellB;
+        }
+        SquareMazeWall.prototype.equals = function (wall) {
+            if (this.cellA === wall.cellA && this.cellB === wall.cellB) {
+                return true;
+            }
+            if (this.cellB === wall.cellA && this.cellA === wall.cellB) {
+                return true;
+            }
+            return false;
+        };
+        return SquareMazeWall;
+    }());
     var SquareMazeGrid = (function (_super) {
         __extends(SquareMazeGrid, _super);
         function SquareMazeGrid(width, height) {
@@ -373,7 +372,7 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     if (x > 0) {
                         cellB = mazeGrid.getCell(x - 1, y);
                         if (cellB != null) {
-                            wall = new MazeGrid_1.MazeWall(cellA, cellB);
+                            wall = new SquareMazeWall(cellA, cellB);
                             if (!wallList.contains(wall)) {
                                 wallList.append(wall);
                             }
@@ -382,7 +381,7 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     if (y > 0) {
                         cellB = mazeGrid.getCell(x, y - 1);
                         if (cellB != null) {
-                            wall = new MazeGrid_1.MazeWall(cellA, cellB);
+                            wall = new SquareMazeWall(cellA, cellB);
                             if (!wallList.contains(wall)) {
                                 wallList.append(wall);
                             }
@@ -391,7 +390,7 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     if (x < (mazeGrid.width - 1)) {
                         cellB = mazeGrid.getCell(x + 1, y);
                         if (cellB != null) {
-                            wall = new MazeGrid_1.MazeWall(cellA, cellB);
+                            wall = new SquareMazeWall(cellA, cellB);
                             if (!wallList.contains(wall)) {
                                 wallList.append(wall);
                             }
@@ -400,7 +399,7 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     if (y < (mazeGrid.height - 1)) {
                         cellB = mazeGrid.getCell(x, y + 1);
                         if (cellB != null) {
-                            wall = new MazeGrid_1.MazeWall(cellA, cellB);
+                            wall = new SquareMazeWall(cellA, cellB);
                             if (!wallList.contains(wall)) {
                                 wallList.append(wall);
                             }

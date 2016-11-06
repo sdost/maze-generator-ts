@@ -1,7 +1,8 @@
 import { DisjointSet } from "../DataStructures/DisjointSet";
+import { IComparable } from "../DataStructures/IComparable";
 import { LinkedList } from "../DataStructures/LinkedList";
 import { PseudoRandom } from "../Helpers/PseudoRandom";
-import { MazeCell, MazeGrid, MazeWall } from "./MazeGrid";
+import { MazeCell, MazeGrid } from "./MazeGrid";
 
 export const enum SquareWall {
   Top = 0,
@@ -40,13 +41,35 @@ export class SquareMazeCell extends MazeCell {
   }
 }
 
+class SquareMazeWall implements IComparable {
+  public cellA: SquareMazeCell;
+  public cellB: SquareMazeCell;
+
+  constructor(cellA: SquareMazeCell, cellB: SquareMazeCell) {
+    this.cellA = cellA;
+    this.cellB = cellB;
+  }
+
+  public equals(wall: SquareMazeWall): Boolean {
+    if ( this.cellA === wall.cellA && this.cellB === wall.cellB ) {
+      return true;
+    }
+
+    if ( this.cellB === wall.cellA && this.cellA === wall.cellB ) {
+      return true;
+    }
+
+    return false;
+  }
+}
+
 export class SquareMazeGrid extends MazeGrid {
   public static generate(width: number, height: number, seed: number = 1): SquareMazeGrid {
     let mazeGrid: SquareMazeGrid = new SquareMazeGrid(width, height);
 
-    let wallList = new LinkedList<MazeWall>();
+    let wallList = new LinkedList<SquareMazeWall>();
 
-    let wall: MazeWall;
+    let wall: SquareMazeWall;
     for ( let x: number = 0; x < mazeGrid.width; x++ ) {
       for ( let y: number = 0; y < mazeGrid.height; y++ ) {
         let cellA: SquareMazeCell = mazeGrid.getCell(x, y) as SquareMazeCell;
@@ -56,7 +79,7 @@ export class SquareMazeGrid extends MazeGrid {
           cellB = mazeGrid.getCell(x - 1, y) as SquareMazeCell;
 
           if ( cellB != null ) {
-            wall = new MazeWall(cellA, cellB);
+            wall = new SquareMazeWall(cellA, cellB);
 
             if (!wallList.contains(wall)) {
               wallList.append(wall);
@@ -68,7 +91,7 @@ export class SquareMazeGrid extends MazeGrid {
           cellB = mazeGrid.getCell(x, y - 1) as SquareMazeCell;
 
           if ( cellB != null ) {
-            wall = new MazeWall(cellA, cellB);
+            wall = new SquareMazeWall(cellA, cellB);
 
             if (!wallList.contains(wall)) {
               wallList.append(wall);
@@ -80,7 +103,7 @@ export class SquareMazeGrid extends MazeGrid {
           cellB = mazeGrid.getCell(x + 1, y) as SquareMazeCell;
 
           if ( cellB != null ) {
-            wall = new MazeWall(cellA, cellB);
+            wall = new SquareMazeWall(cellA, cellB);
 
             if (!wallList.contains(wall)) {
               wallList.append(wall);
@@ -92,7 +115,7 @@ export class SquareMazeGrid extends MazeGrid {
           cellB = mazeGrid.getCell(x, y + 1) as SquareMazeCell;
 
           if ( cellB != null ) {
-            wall = new MazeWall(cellA, cellB);
+            wall = new SquareMazeWall(cellA, cellB);
 
             if (!wallList.contains(wall)) {
               wallList.append(wall);
