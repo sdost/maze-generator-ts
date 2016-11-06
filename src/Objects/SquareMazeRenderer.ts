@@ -42,16 +42,23 @@ export class SquareMazeRenderer {
     for ( let x: number = 0; x < maze.width; x++ ) {
       for ( let y: number = 0; y < maze.height; y++ ) {
         let cell: SquareMazeCell = maze.getCell(x, y) as SquareMazeCell;
-        SquareMazeRenderer.renderWalls(img, cell, scale, 0, 0, 0, 1.0);
+        if (cell === maze.startCell) {
+          SquareMazeRenderer.renderCell(img, cell, scale, 0, 0.8, 0, 1.0);
+        } else if (cell === maze.endCell) {
+          SquareMazeRenderer.renderCell(img, cell, scale, 0.8, 0, 0, 1.0);
+        } else if (!cell.visited) {
+          SquareMazeRenderer.renderCell(img, cell, scale, 0.8, 0.8, 0.8, 1.0);
+        } else {
+          SquareMazeRenderer.renderCell(img, cell, scale, 1.0, 1.0, 1.0, 1.0);
+        }
       }
     }
 
-    if (maze.startCell) {
-      SquareMazeRenderer.renderCell(img, maze.startCell as SquareMazeCell, scale, 0, 0.8, 0, 1.0);
-    }
-
-    if (maze.endCell) {
-      SquareMazeRenderer.renderCell(img, maze.endCell as SquareMazeCell, scale, 0.8, 0, 0, 1.0);
+    for ( let x: number = 0; x < maze.width; x++ ) {
+      for ( let y: number = 0; y < maze.height; y++ ) {
+        let cell: SquareMazeCell = maze.getCell(x, y) as SquareMazeCell;
+        SquareMazeRenderer.renderWalls(img, cell, scale, 0, 0, 0, 1.0);
+      }
     }
   }
 
@@ -83,7 +90,7 @@ export class SquareMazeRenderer {
   private static drawLine(img: ImageData, x0: number, y0: number, x1: number, y1: number,
                           r: number, g: number, b: number, a: number): void {
     let dX = x1 - x0;
-    let dY = Math.abs(y1 - y0);
+    let dY = y1 - y0;
 
     if (dX === 0) {
       for (let y: number = y0; y <= y1; y++) {
@@ -100,8 +107,8 @@ export class SquareMazeRenderer {
 
   private static drawRect(img: ImageData, x0: number, y0: number, x1: number, y1: number,
                           r: number, g: number, b: number, a: number): void {
-    for (let x: number = x0; x < x1; x++) {
-      for (let y: number = y0; y < y1; y++) {
+    for (let x: number = x0; x <= x1; x++) {
+      for (let y: number = y0; y <= y1; y++) {
         SquareMazeRenderer.setPixel(img, x, y, r, g, b, a);
       }
     }

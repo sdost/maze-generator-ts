@@ -6,72 +6,49 @@ export class SquareMazeSolver {
   public static RIGHT_HAND: number = 0;
   public static LEFT_HAND: number = 1;
 
-  public static solve(maze: MazeGrid): LinkedList<SquareMazeCell> {
-    let facing: SquareWall;
-    let path: LinkedList<SquareMazeCell> = new LinkedList<SquareMazeCell>();
-    path.append(maze.startCell as SquareMazeCell);
+  public static solve(maze: MazeGrid): SquareMazeSolver {
+    let solver = new SquareMazeSolver(maze);
+    return solver;
+  }
 
-    if (maze.startCell.yPos === 0) {
-      facing = SquareWall.Bottom;
-    } else if (maze.startCell.xPos === maze.width - 1) {
-      facing = SquareWall.Left;
-    } else if (maze.startCell.yPos === maze.height - 1) {
-      facing = SquareWall.Top;
+  private maze: MazeGrid;
+  private facing: SquareWall;
+  private currentPath: LinkedList<SquareMazeCell>;
+  private currentCell: SquareMazeCell;
+
+  constructor(maze: MazeGrid) {
+    this.maze = maze;
+    this.currentPath = new LinkedList<SquareMazeCell>();
+    this.currentPath.append(this.maze.startCell as SquareMazeCell);
+
+    if (this.maze.startCell.yPos === 0) {
+      this.facing = SquareWall.Bottom;
+    } else if (this.maze.startCell.xPos === this.maze.width - 1) {
+      this.facing = SquareWall.Left;
+    } else if (this.maze.startCell.yPos === this.maze.height - 1) {
+      this.facing = SquareWall.Top;
     } else {
-      facing = SquareWall.Right;
+      this.facing = SquareWall.Right;
+    }
+  }
+
+  public iterate(): boolean {
+    if ( this.currentPath.contains(this.maze.endCell as SquareMazeCell) ) {
+      return true;
     }
 
-    let cell: SquareMazeCell;
-    let lastCell: SquareMazeCell;
-    let nextCell: SquareMazeCell;
-    let x: number;
-    let y: number;
-    while ( !path.contains(maze.endCell as SquareMazeCell) ) {
-      lastCell = cell;
-      cell = path.tail.data;
+    let lastCell = this.currentCell;
+    this.currentCell = this.currentPath.tail.data;
 
-      let w: number = SquareMazeSolver.getRightHandWall(facing);
-      if ( cell.hasWall(w) ) {
-        if ( cell.hasWall(facing) ) {
-          facing = SquareMazeSolver.getLeftHandWall(facing);
-        } else {
-          x = cell.xPos;
-          y = cell.yPos;
-
-          switch (facing) {
-            case SquareWall.Top:
-              y--;
-              break;
-            case SquareWall.Bottom:
-              y++;
-              break;
-            case SquareWall.Left:
-              x--;
-              break;
-            case SquareWall.Right:
-              x++;
-              break;
-            default:
-              break;
-          }
-          nextCell = maze.getCell(x, y) as SquareMazeCell;
-
-          if (nextCell != null) {
-            if (path.contains(nextCell)) {
-              path.tail.unlink();
-            } else if ( nextCell === lastCell ) {
-              path.tail.unlink();
-            } else {
-              path.append(nextCell);
-            }
-          }
-        }
+    let w: number = getRightHandWall(this.facing);
+    if ( this.currentCell.hasWall(w) ) {
+      if ( this.currentCell.hasWall(this.facing) ) {
+        this.facing = getLeftHandWall(this.facing);
       } else {
-        facing = SquareMazeSolver.getRightHandWall(facing);
-        x = cell.xPos;
-        y = cell.yPos;
+        let x = this.currentCell.xPos;
+        let y = this.currentCell.yPos;
 
-        switch (facing) {
+        switch (this.facing) {
           case SquareWall.Top:
             y--;
             break;
@@ -87,50 +64,86 @@ export class SquareMazeSolver {
           default:
             break;
         }
-        nextCell = maze.getCell(x, y) as SquareMazeCell;
+        let nextCell = this.maze.getCell(x, y) as SquareMazeCell;
 
         if (nextCell != null) {
-          if (path.contains(nextCell)) {
-            path.tail.unlink();
+          if (this.currentPath.contains(nextCell)) {
+            this.currentPath.tail.unlink();
           } else if ( nextCell === lastCell ) {
-            path.tail.unlink();
+            this.currentPath.tail.unlink();
           } else {
-            path.append(nextCell);
+            this.currentPath.append(nextCell);
           }
+        }
+      }
+    } else {
+      this.facing = getRightHandWall(this.facing);
+      let x = this.currentCell.xPos;
+      let y = this.currentCell.yPos;
+
+      switch (this.facing) {
+        case SquareWall.Top:
+          y--;
+          break;
+        case SquareWall.Bottom:
+          y++;
+          break;
+        case SquareWall.Left:
+          x--;
+          break;
+        case SquareWall.Right:
+          x++;
+          break;
+        default:
+          break;
+      }
+      let nextCell = this.maze.getCell(x, y) as SquareMazeCell;
+
+      if (nextCell != null) {
+        if (this.currentPath.contains(nextCell)) {
+          this.currentPath.tail.unlink();
+        } else if ( nextCell === lastCell ) {
+          this.currentPath.tail.unlink();
+        } else {
+          this.currentPath.append(nextCell);
         }
       }
     }
 
-    return path;
+    return false;
   }
 
-  private static getRightHandWall(facing: SquareWall): SquareWall {
-    switch (facing) {
-      case SquareWall.Top:
-        return SquareWall.Right;
-      case SquareWall.Right:
-        return SquareWall.Bottom;
-      case SquareWall.Bottom:
-        return SquareWall.Left;
-      case SquareWall.Left:
-        return SquareWall.Top;
-      default:
-        throw new Error();
-    }
+  public get path(): LinkedList<SquareMazeCell> {
+    return this.currentPath;
   }
+}
 
-  private static getLeftHandWall(facing: SquareWall): SquareWall {
-    switch (facing) {
-      case SquareWall.Top:
-        return SquareWall.Left;
-      case SquareWall.Left:
-        return SquareWall.Bottom;
-      case SquareWall.Bottom:
-        return SquareWall.Right;
-      case SquareWall.Right:
-        return SquareWall.Top;
-      default:
-        throw new Error();
-    }
+function getRightHandWall(facing: SquareWall): SquareWall {
+  switch (facing) {
+    case SquareWall.Top:
+      return SquareWall.Right;
+    case SquareWall.Right:
+      return SquareWall.Bottom;
+    case SquareWall.Bottom:
+      return SquareWall.Left;
+    case SquareWall.Left:
+      return SquareWall.Top;
+    default:
+      throw new Error();
+  }
+}
+
+function getLeftHandWall(facing: SquareWall): SquareWall {
+  switch (facing) {
+    case SquareWall.Top:
+      return SquareWall.Left;
+    case SquareWall.Left:
+      return SquareWall.Bottom;
+    case SquareWall.Bottom:
+      return SquareWall.Right;
+    case SquareWall.Right:
+      return SquareWall.Top;
+    default:
+      throw new Error();
   }
 }

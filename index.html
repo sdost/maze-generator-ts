@@ -29,23 +29,41 @@ resizeCanvas();
 if(window.Worker) {
   var worker = new Worker("worker.js");
   generate.onclick = function() {
-    generate.value = "Loading...";
-    generate.enabled = false;
+    disableButtons();
     var data = context.createImageData(canvas.width, canvas.height);
     worker.postMessage({ action: "gen_maze", values: { width: width.value, height: height.value, seed: seed.value, imageData: data } });
   };
   solve.onclick = function() {
-    solve.value = "Loading...";
-    solve.enabled = false;
+    disableButtons();
     var data = context.createImageData(canvas.width, canvas.height);
     worker.postMessage({ action: "solve_maze", values: { imageData: data } });
   };
   worker.onmessage = function(e) {
-    generate.value = "Generate Maze";
-    generate.enabled = true;
-    solve.value = "Solve Maze";
-    solve.enabled = true;
-    context.putImageData(e.data, 0, 0);
+    if (e.data.action === "render_maze") {
+      createImageBitmap(e.data.values.imageData).then(function(bmp) {
+        context.drawImage(bmp, 0, 0);
+        if (e.data.values.iterate) {
+          var data = context.createImageData(canvas.width, canvas.height);
+          worker.postMessage({ action: "iterate_maze", values: { imageData: data } });
+        } else {
+          enableButtons();
+        }
+      });
+    } else if (e.data.action === "render_solution") {
+      createImageBitmap(e.data.values.imageData).then(function(bmp) {
+        context.drawImage(bmp, 0, 0);
+        if (e.data.values.iterate) {
+          var data = context.createImageData(canvas.width, canvas.height);
+          worker.postMessage({ action: "iterate_solution", values: { imageData: data } });
+        } else {
+          enableButtons();
+        }
+      });
+    } else if (e.data.action === "render") {
+      createImageBitmap(e.data.values.imageData).then(function(bmp) {
+        context.drawImage(bmp, 0, 0);
+      });
+    }
   };
 }
 
@@ -57,6 +75,20 @@ function resizeCanvas() {
     var data = context.createImageData(canvas.width, canvas.height);
     worker.postMessage({ action: "render", values: { imageData: data } });
   }
+}
+
+function disableButtons() {
+  generate.value = "Please wait...";
+  generate.enabled = false;
+  solve.value = "Please wait...";
+  solve.enabled = false;
+}
+
+function enableButtons() {
+  generate.value = "Generate Maze";
+  generate.enabled = true;
+  solve.value = "Solve Maze";
+  solve.enabled = true;
 }
 </script>
 </body>

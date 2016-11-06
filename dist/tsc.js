@@ -264,6 +264,7 @@ define("Objects/MazeGrid", ["require", "exports"], function (require, exports) {
         function MazeCell(x, y) {
             this.xPos = x;
             this.yPos = y;
+            this.visited = false;
             this.wallList = new Array();
             this.initialize();
         }
@@ -358,71 +359,88 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             _super.call(this);
             this.gridWidth = width;
             this.gridHeight = height;
-            this.initGrid();
         }
         SquareMazeGrid.generate = function (width, height, seed) {
             if (seed === void 0) { seed = 1; }
             var mazeGrid = new SquareMazeGrid(width, height);
-            var wallList = new LinkedList_2.LinkedList();
+            var prng = new PseudoRandom_1.PseudoRandom();
+            prng.seed = seed > 0 ? seed : new Date().getTime();
+            mazeGrid.initGrid(prng);
+            mazeGrid.createExitCells(prng);
+            return mazeGrid;
+        };
+        SquareMazeGrid.prototype.initGrid = function (prng) {
+            this.shift = 0;
+            var minLength = this.gridWidth * this.gridHeight;
+            var powOfTwo = 1;
+            while (powOfTwo < minLength) {
+                powOfTwo *= 2;
+                this.shift++;
+            }
+            this.grid = new Array(this.gridWidth << this.shift);
+            for (var x = 0; x < this.gridWidth; x++) {
+                for (var y = 0; y < this.gridHeight; y++) {
+                    var ind = (x << this.shift) | y;
+                    this.grid[ind] = new SquareMazeCell(x, y);
+                }
+            }
+            this.wallList = new LinkedList_2.LinkedList();
             var wall;
-            for (var x = 0; x < mazeGrid.width; x++) {
-                for (var y = 0; y < mazeGrid.height; y++) {
-                    var cellA = mazeGrid.getCell(x, y);
+            for (var x = 0; x < this.width; x++) {
+                for (var y = 0; y < this.height; y++) {
+                    var cellA = this.getCell(x, y);
                     var cellB = void 0;
                     if (x > 0) {
-                        cellB = mazeGrid.getCell(x - 1, y);
+                        cellB = this.getCell(x - 1, y);
                         if (cellB != null) {
                             wall = new SquareMazeWall(cellA, cellB);
-                            if (!wallList.contains(wall)) {
-                                wallList.append(wall);
+                            if (!this.wallList.contains(wall)) {
+                                this.wallList.append(wall);
                             }
                         }
                     }
                     if (y > 0) {
-                        cellB = mazeGrid.getCell(x, y - 1);
+                        cellB = this.getCell(x, y - 1);
                         if (cellB != null) {
                             wall = new SquareMazeWall(cellA, cellB);
-                            if (!wallList.contains(wall)) {
-                                wallList.append(wall);
+                            if (!this.wallList.contains(wall)) {
+                                this.wallList.append(wall);
                             }
                         }
                     }
-                    if (x < (mazeGrid.width - 1)) {
-                        cellB = mazeGrid.getCell(x + 1, y);
+                    if (x < (this.width - 1)) {
+                        cellB = this.getCell(x + 1, y);
                         if (cellB != null) {
                             wall = new SquareMazeWall(cellA, cellB);
-                            if (!wallList.contains(wall)) {
-                                wallList.append(wall);
+                            if (!this.wallList.contains(wall)) {
+                                this.wallList.append(wall);
                             }
                         }
                     }
-                    if (y < (mazeGrid.height - 1)) {
-                        cellB = mazeGrid.getCell(x, y + 1);
+                    if (y < (this.height - 1)) {
+                        cellB = this.getCell(x, y + 1);
                         if (cellB != null) {
                             wall = new SquareMazeWall(cellA, cellB);
-                            if (!wallList.contains(wall)) {
-                                wallList.append(wall);
+                            if (!this.wallList.contains(wall)) {
+                                this.wallList.append(wall);
                             }
                         }
                     }
                 }
             }
-            var sets = new DisjointSet_1.DisjointSet(mazeGrid.width * mazeGrid.height);
-            for (var x = 0; x < mazeGrid.width; x++) {
-                for (var y = 0; y < mazeGrid.height; y++) {
-                    var cell = mazeGrid.getCell(x, y);
-                    sets.createSet(cell);
+            this.wallList.shuffle(prng);
+            this.sets = new DisjointSet_1.DisjointSet(this.width * this.height);
+            for (var x = 0; x < this.width; x++) {
+                for (var y = 0; y < this.height; y++) {
+                    var cell = this.getCell(x, y);
+                    this.sets.createSet(cell);
                 }
             }
-            var prng = new PseudoRandom_1.PseudoRandom();
-            prng.seed = seed > 0 ? seed : new Date().getTime();
-            wallList.shuffle(prng);
-            while (wallList.size > 0) {
-                wall = wallList.removeHead();
-                if (sets.findSet(wall.cellA) === sets.findSet(wall.cellB)) {
-                    continue;
-                }
-                sets.mergeSet(wall.cellA, wall.cellB);
+        };
+        SquareMazeGrid.prototype.iterate = function () {
+            var wall = this.getNextWall();
+            if (wall != null) {
+                this.sets.mergeSet(wall.cellA, wall.cellB);
                 if (wall.cellA.xPos > wall.cellB.xPos) {
                     wall.cellA.removeWall(3 /* Left */);
                     wall.cellB.removeWall(1 /* Right */);
@@ -439,14 +457,34 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     wall.cellA.removeWall(2 /* Bottom */);
                     wall.cellB.removeWall(0 /* Top */);
                 }
+                wall.cellA.visited = true;
+                wall.cellB.visited = true;
+                return false;
             }
-            // Add start and end.
-            mazeGrid.createExitCells(prng);
-            return mazeGrid;
+            else {
+                return true;
+            }
         };
         SquareMazeGrid.prototype.getCell = function (x, y) {
             var ind = (x << this.shift) | y;
             return this.grid[ind];
+        };
+        SquareMazeGrid.prototype.getNextWall = function () {
+            if (this.wallList.size > 0) {
+                var wall = this.wallList.removeHead();
+                while (this.sets.findSet(wall.cellA) === this.sets.findSet(wall.cellB)) {
+                    if (this.wallList.size > 0) {
+                        wall = this.wallList.removeHead();
+                    }
+                    else {
+                        return null;
+                    }
+                }
+                return wall;
+            }
+            else {
+                return null;
+            }
         };
         SquareMazeGrid.prototype.createExitCells = function (prng) {
             var outerWall = prng.nextIntRange(0, 3);
@@ -487,22 +525,6 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             }
             this.gridEndCell = this.getCell(xPos, yPos);
         };
-        SquareMazeGrid.prototype.initGrid = function () {
-            this.shift = 0;
-            var minLength = this.gridWidth * this.gridHeight;
-            var powOfTwo = 1;
-            while (powOfTwo < minLength) {
-                powOfTwo *= 2;
-                this.shift++;
-            }
-            this.grid = new Array(this.gridWidth << this.shift);
-            for (var x = 0; x < this.gridWidth; x++) {
-                for (var y = 0; y < this.gridHeight; y++) {
-                    var ind = (x << this.shift) | y;
-                    this.grid[ind] = new SquareMazeCell(x, y);
-                }
-            }
-        };
         return SquareMazeGrid;
     }(MazeGrid_1.MazeGrid));
     exports.SquareMazeGrid = SquareMazeGrid;
@@ -540,14 +562,25 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
             for (var x = 0; x < maze.width; x++) {
                 for (var y = 0; y < maze.height; y++) {
                     var cell = maze.getCell(x, y);
-                    SquareMazeRenderer.renderWalls(img, cell, scale, 0, 0, 0, 1.0);
+                    if (cell === maze.startCell) {
+                        SquareMazeRenderer.renderCell(img, cell, scale, 0, 0.8, 0, 1.0);
+                    }
+                    else if (cell === maze.endCell) {
+                        SquareMazeRenderer.renderCell(img, cell, scale, 0.8, 0, 0, 1.0);
+                    }
+                    else if (!cell.visited) {
+                        SquareMazeRenderer.renderCell(img, cell, scale, 0.8, 0.8, 0.8, 1.0);
+                    }
+                    else {
+                        SquareMazeRenderer.renderCell(img, cell, scale, 1.0, 1.0, 1.0, 1.0);
+                    }
                 }
             }
-            if (maze.startCell) {
-                SquareMazeRenderer.renderCell(img, maze.startCell, scale, 0, 0.8, 0, 1.0);
-            }
-            if (maze.endCell) {
-                SquareMazeRenderer.renderCell(img, maze.endCell, scale, 0.8, 0, 0, 1.0);
+            for (var x = 0; x < maze.width; x++) {
+                for (var y = 0; y < maze.height; y++) {
+                    var cell = maze.getCell(x, y);
+                    SquareMazeRenderer.renderWalls(img, cell, scale, 0, 0, 0, 1.0);
+                }
             }
         };
         SquareMazeRenderer.renderPath = function (img, path, scale) {
@@ -571,7 +604,7 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
         };
         SquareMazeRenderer.drawLine = function (img, x0, y0, x1, y1, r, g, b, a) {
             var dX = x1 - x0;
-            var dY = Math.abs(y1 - y0);
+            var dY = y1 - y0;
             if (dX === 0) {
                 for (var y = y0; y <= y1; y++) {
                     var x = x1 + dX * (y - y1) / dY;
@@ -586,8 +619,8 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
             }
         };
         SquareMazeRenderer.drawRect = function (img, x0, y0, x1, y1, r, g, b, a) {
-            for (var x = x0; x < x1; x++) {
-                for (var y = y0; y < y1; y++) {
+            for (var x = x0; x <= x1; x++) {
+                for (var y = y0; y <= y1; y++) {
                     SquareMazeRenderer.setPixel(img, x, y, r, g, b, a);
                 }
             }
@@ -599,75 +632,42 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
 define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/LinkedList"], function (require, exports, LinkedList_3) {
     "use strict";
     var SquareMazeSolver = (function () {
-        function SquareMazeSolver() {
-        }
-        SquareMazeSolver.solve = function (maze) {
-            var facing;
-            var path = new LinkedList_3.LinkedList();
-            path.append(maze.startCell);
-            if (maze.startCell.yPos === 0) {
-                facing = 2 /* Bottom */;
+        function SquareMazeSolver(maze) {
+            this.maze = maze;
+            this.currentPath = new LinkedList_3.LinkedList();
+            this.currentPath.append(this.maze.startCell);
+            if (this.maze.startCell.yPos === 0) {
+                this.facing = 2 /* Bottom */;
             }
-            else if (maze.startCell.xPos === maze.width - 1) {
-                facing = 3 /* Left */;
+            else if (this.maze.startCell.xPos === this.maze.width - 1) {
+                this.facing = 3 /* Left */;
             }
-            else if (maze.startCell.yPos === maze.height - 1) {
-                facing = 0 /* Top */;
+            else if (this.maze.startCell.yPos === this.maze.height - 1) {
+                this.facing = 0 /* Top */;
             }
             else {
-                facing = 1 /* Right */;
+                this.facing = 1 /* Right */;
             }
-            var cell;
-            var lastCell;
-            var nextCell;
-            var x;
-            var y;
-            while (!path.contains(maze.endCell)) {
-                lastCell = cell;
-                cell = path.tail.data;
-                var w = SquareMazeSolver.getRightHandWall(facing);
-                if (cell.hasWall(w)) {
-                    if (cell.hasWall(facing)) {
-                        facing = SquareMazeSolver.getLeftHandWall(facing);
-                    }
-                    else {
-                        x = cell.xPos;
-                        y = cell.yPos;
-                        switch (facing) {
-                            case 0 /* Top */:
-                                y--;
-                                break;
-                            case 2 /* Bottom */:
-                                y++;
-                                break;
-                            case 3 /* Left */:
-                                x--;
-                                break;
-                            case 1 /* Right */:
-                                x++;
-                                break;
-                            default:
-                                break;
-                        }
-                        nextCell = maze.getCell(x, y);
-                        if (nextCell != null) {
-                            if (path.contains(nextCell)) {
-                                path.tail.unlink();
-                            }
-                            else if (nextCell === lastCell) {
-                                path.tail.unlink();
-                            }
-                            else {
-                                path.append(nextCell);
-                            }
-                        }
-                    }
+        }
+        SquareMazeSolver.solve = function (maze) {
+            var solver = new SquareMazeSolver(maze);
+            return solver;
+        };
+        SquareMazeSolver.prototype.iterate = function () {
+            if (this.currentPath.contains(this.maze.endCell)) {
+                return true;
+            }
+            var lastCell = this.currentCell;
+            this.currentCell = this.currentPath.tail.data;
+            var w = getRightHandWall(this.facing);
+            if (this.currentCell.hasWall(w)) {
+                if (this.currentCell.hasWall(this.facing)) {
+                    this.facing = getLeftHandWall(this.facing);
                 }
                 else {
-                    facing = SquareMazeSolver.getRightHandWall(facing);
-                    x = cell.xPos;
-                    y = cell.yPos;
-                    switch (facing) {
+                    var x = this.currentCell.xPos;
+                    var y = this.currentCell.yPos;
+                    switch (this.facing) {
                         case 0 /* Top */:
                             y--;
                             break;
@@ -683,55 +683,95 @@ define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/Linked
                         default:
                             break;
                     }
-                    nextCell = maze.getCell(x, y);
+                    var nextCell = this.maze.getCell(x, y);
                     if (nextCell != null) {
-                        if (path.contains(nextCell)) {
-                            path.tail.unlink();
+                        if (this.currentPath.contains(nextCell)) {
+                            this.currentPath.tail.unlink();
                         }
                         else if (nextCell === lastCell) {
-                            path.tail.unlink();
+                            this.currentPath.tail.unlink();
                         }
                         else {
-                            path.append(nextCell);
+                            this.currentPath.append(nextCell);
                         }
                     }
                 }
             }
-            return path;
-        };
-        SquareMazeSolver.getRightHandWall = function (facing) {
-            switch (facing) {
-                case 0 /* Top */:
-                    return 1 /* Right */;
-                case 1 /* Right */:
-                    return 2 /* Bottom */;
-                case 2 /* Bottom */:
-                    return 3 /* Left */;
-                case 3 /* Left */:
-                    return 0 /* Top */;
-                default:
-                    throw new Error();
+            else {
+                this.facing = getRightHandWall(this.facing);
+                var x = this.currentCell.xPos;
+                var y = this.currentCell.yPos;
+                switch (this.facing) {
+                    case 0 /* Top */:
+                        y--;
+                        break;
+                    case 2 /* Bottom */:
+                        y++;
+                        break;
+                    case 3 /* Left */:
+                        x--;
+                        break;
+                    case 1 /* Right */:
+                        x++;
+                        break;
+                    default:
+                        break;
+                }
+                var nextCell = this.maze.getCell(x, y);
+                if (nextCell != null) {
+                    if (this.currentPath.contains(nextCell)) {
+                        this.currentPath.tail.unlink();
+                    }
+                    else if (nextCell === lastCell) {
+                        this.currentPath.tail.unlink();
+                    }
+                    else {
+                        this.currentPath.append(nextCell);
+                    }
+                }
             }
+            return false;
         };
-        SquareMazeSolver.getLeftHandWall = function (facing) {
-            switch (facing) {
-                case 0 /* Top */:
-                    return 3 /* Left */;
-                case 3 /* Left */:
-                    return 2 /* Bottom */;
-                case 2 /* Bottom */:
-                    return 1 /* Right */;
-                case 1 /* Right */:
-                    return 0 /* Top */;
-                default:
-                    throw new Error();
-            }
-        };
+        Object.defineProperty(SquareMazeSolver.prototype, "path", {
+            get: function () {
+                return this.currentPath;
+            },
+            enumerable: true,
+            configurable: true
+        });
         SquareMazeSolver.RIGHT_HAND = 0;
         SquareMazeSolver.LEFT_HAND = 1;
         return SquareMazeSolver;
     }());
     exports.SquareMazeSolver = SquareMazeSolver;
+    function getRightHandWall(facing) {
+        switch (facing) {
+            case 0 /* Top */:
+                return 1 /* Right */;
+            case 1 /* Right */:
+                return 2 /* Bottom */;
+            case 2 /* Bottom */:
+                return 3 /* Left */;
+            case 3 /* Left */:
+                return 0 /* Top */;
+            default:
+                throw new Error();
+        }
+    }
+    function getLeftHandWall(facing) {
+        switch (facing) {
+            case 0 /* Top */:
+                return 3 /* Left */;
+            case 3 /* Left */:
+                return 2 /* Bottom */;
+            case 2 /* Bottom */:
+                return 1 /* Right */;
+            case 1 /* Right */:
+                return 0 /* Top */;
+            default:
+                throw new Error();
+        }
+    }
 });
 define("MazeWorker", ["require", "exports", "Objects/SquareMazeGrid", "Objects/SquareMazeRenderer", "Objects/SquareMazeSolver"], function (require, exports, SquareMazeGrid_1, SquareMazeRenderer_1, SquareMazeSolver_1) {
     "use strict";
@@ -742,9 +782,25 @@ define("MazeWorker", ["require", "exports", "Objects/SquareMazeGrid", "Objects/S
             this.solution = null;
             this.maze = SquareMazeGrid_1.SquareMazeGrid.generate(width, height, seed);
         };
+        MazeWorker.prototype.iterateMaze = function () {
+            if (this.maze) {
+                return this.maze.iterate();
+            }
+            else {
+                return false;
+            }
+        };
         MazeWorker.prototype.solveMaze = function () {
             if (this.maze) {
                 this.solution = SquareMazeSolver_1.SquareMazeSolver.solve(this.maze);
+            }
+        };
+        MazeWorker.prototype.iterateSolution = function () {
+            if (this.solution) {
+                return this.solution.iterate();
+            }
+            else {
+                return false;
             }
         };
         MazeWorker.prototype.render = function (img) {
@@ -753,7 +809,7 @@ define("MazeWorker", ["require", "exports", "Objects/SquareMazeGrid", "Objects/S
                 var vScale = Math.floor(img.height / this.maze.height);
                 SquareMazeRenderer_1.SquareMazeRenderer.renderGrid(img, this.maze, (hScale < vScale) ? hScale : vScale);
                 if (this.solution) {
-                    SquareMazeRenderer_1.SquareMazeRenderer.renderPath(img, this.solution, (hScale < vScale) ? hScale : vScale);
+                    SquareMazeRenderer_1.SquareMazeRenderer.renderPath(img, this.solution.path, (hScale < vScale) ? hScale : vScale);
                 }
             }
             return img;

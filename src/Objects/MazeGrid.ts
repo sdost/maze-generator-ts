@@ -3,12 +3,14 @@ import { IComparable } from "../DataStructures/IComparable";
 export abstract class MazeCell implements IComparable {
   public xPos: number;
   public yPos: number;
+  public visited: boolean;
 
   protected wallList: Array<Boolean>;
 
   constructor(x: number, y: number) {
     this.xPos = x;
     this.yPos = y;
+    this.visited = false;
     this.wallList = new Array<Boolean>();
     this.initialize();
   }
@@ -38,6 +40,10 @@ export abstract class MazeGrid {
   protected gridStartCell: MazeCell;
   protected gridEndCell: MazeCell;
 
+  protected gridSeed: number;
+
+  public abstract iterate(): void;
+
   public abstract getCell(x: number, a: number): MazeCell;
 
   public get startCell(): MazeCell { return this.gridStartCell; }
@@ -47,6 +53,4 @@ export abstract class MazeGrid {
   public get width(): number { return this.gridWidth; }
 
   public get height(): number { return this.gridHeight; }
-
-  protected abstract initGrid(): void;
 }

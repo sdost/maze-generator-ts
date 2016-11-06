@@ -1,20 +1,35 @@
-import { LinkedList } from "./DataStructures/LinkedList";
-import { SquareMazeCell, SquareMazeGrid } from "./Objects/SquareMazeGrid";
+import { SquareMazeGrid } from "./Objects/SquareMazeGrid";
 import { SquareMazeRenderer } from "./Objects/SquareMazeRenderer";
 import { SquareMazeSolver } from "./Objects/SquareMazeSolver";
 
 export class MazeWorker {
   private maze: SquareMazeGrid;
-  private solution: LinkedList<SquareMazeCell>;
+  private solution: SquareMazeSolver;
 
   public generateMaze(width: number, height: number, seed: number): void {
     this.solution = null;
     this.maze = SquareMazeGrid.generate(width, height, seed);
   }
 
+  public iterateMaze(): boolean {
+    if (this.maze) {
+      return this.maze.iterate();
+    } else {
+      return false;
+    }
+  }
+
   public solveMaze(): void {
     if (this.maze) {
       this.solution = SquareMazeSolver.solve(this.maze);
+    }
+  }
+
+  public iterateSolution(): boolean {
+    if (this.solution) {
+      return this.solution.iterate();
+    } else {
+      return false;
     }
   }
 
@@ -26,7 +41,7 @@ export class MazeWorker {
       SquareMazeRenderer.renderGrid(img, this.maze, (hScale < vScale) ? hScale : vScale);
 
       if (this.solution) {
-        SquareMazeRenderer.renderPath(img, this.solution, (hScale < vScale) ? hScale : vScale);
+        SquareMazeRenderer.renderPath(img, this.solution.path, (hScale < vScale) ? hScale : vScale);
       }
     }
 

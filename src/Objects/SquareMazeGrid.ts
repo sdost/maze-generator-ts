@@ -66,87 +66,114 @@ class SquareMazeWall implements IComparable {
 export class SquareMazeGrid extends MazeGrid {
   public static generate(width: number, height: number, seed: number = 1): SquareMazeGrid {
     let mazeGrid: SquareMazeGrid = new SquareMazeGrid(width, height);
+    let prng: PseudoRandom = new PseudoRandom();
+    prng.seed =  seed > 0 ? seed : new Date().getTime();
+    mazeGrid.initGrid(prng);
+    mazeGrid.createExitCells(prng);
 
-    let wallList = new LinkedList<SquareMazeWall>();
+    return mazeGrid;
+  }
+
+  private wallList: LinkedList<SquareMazeWall>;
+  private sets: DisjointSet<SquareMazeCell>;
+
+  constructor(width: number, height: number) {
+    super();
+    this.gridWidth = width;
+    this.gridHeight = height;
+  }
+
+  public initGrid(prng: PseudoRandom): void {
+    this.shift = 0;
+    let minLength: number = this.gridWidth * this.gridHeight;
+    let powOfTwo: number = 1;
+    while ( powOfTwo < minLength ) {
+      powOfTwo *= 2;
+      this.shift++;
+    }
+
+    this.grid = new Array<MazeCell>(this.gridWidth << this.shift);
+    for ( let x: number = 0; x < this.gridWidth; x++ ) {
+      for ( let y: number = 0; y < this.gridHeight; y++ ) {
+        let ind: number = (x << this.shift) | y;
+        this.grid[ind] = new SquareMazeCell(x, y);
+      }
+    }
+
+    this.wallList = new LinkedList<SquareMazeWall>();
 
     let wall: SquareMazeWall;
-    for ( let x: number = 0; x < mazeGrid.width; x++ ) {
-      for ( let y: number = 0; y < mazeGrid.height; y++ ) {
-        let cellA: SquareMazeCell = mazeGrid.getCell(x, y) as SquareMazeCell;
+    for ( let x: number = 0; x < this.width; x++ ) {
+      for ( let y: number = 0; y < this.height; y++ ) {
+        let cellA: SquareMazeCell = this.getCell(x, y) as SquareMazeCell;
         let cellB: SquareMazeCell;
 
         if ( x > 0 ) {
-          cellB = mazeGrid.getCell(x - 1, y) as SquareMazeCell;
+          cellB = this.getCell(x - 1, y) as SquareMazeCell;
 
           if ( cellB != null ) {
             wall = new SquareMazeWall(cellA, cellB);
 
-            if (!wallList.contains(wall)) {
-              wallList.append(wall);
+            if (!this.wallList.contains(wall)) {
+              this.wallList.append(wall);
             }
           }
         }
 
         if ( y > 0 ) {
-          cellB = mazeGrid.getCell(x, y - 1) as SquareMazeCell;
+          cellB = this.getCell(x, y - 1) as SquareMazeCell;
 
           if ( cellB != null ) {
             wall = new SquareMazeWall(cellA, cellB);
 
-            if (!wallList.contains(wall)) {
-              wallList.append(wall);
+            if (!this.wallList.contains(wall)) {
+              this.wallList.append(wall);
             }
           }
         }
 
-        if ( x < (mazeGrid.width - 1) ) {
-          cellB = mazeGrid.getCell(x + 1, y) as SquareMazeCell;
+        if ( x < (this.width - 1) ) {
+          cellB = this.getCell(x + 1, y) as SquareMazeCell;
 
           if ( cellB != null ) {
             wall = new SquareMazeWall(cellA, cellB);
 
-            if (!wallList.contains(wall)) {
-              wallList.append(wall);
+            if (!this.wallList.contains(wall)) {
+              this.wallList.append(wall);
             }
           }
         }
 
-        if ( y < (mazeGrid.height - 1) ) {
-          cellB = mazeGrid.getCell(x, y + 1) as SquareMazeCell;
+        if ( y < (this.height - 1) ) {
+          cellB = this.getCell(x, y + 1) as SquareMazeCell;
 
           if ( cellB != null ) {
             wall = new SquareMazeWall(cellA, cellB);
 
-            if (!wallList.contains(wall)) {
-              wallList.append(wall);
+            if (!this.wallList.contains(wall)) {
+              this.wallList.append(wall);
             }
           }
         }
       }
     }
 
-    let sets = new DisjointSet(mazeGrid.width * mazeGrid.height);
+    this.wallList.shuffle(prng);
 
-    for ( let x: number = 0; x < mazeGrid.width; x++ ) {
-      for ( let y: number = 0; y < mazeGrid.height; y++ ) {
-        let cell: MazeCell = mazeGrid.getCell(x, y);
-        sets.createSet(cell);
+    this.sets = new DisjointSet<SquareMazeCell>(this.width * this.height);
+
+    for ( let x: number = 0; x < this.width; x++ ) {
+      for ( let y: number = 0; y < this.height; y++ ) {
+        let cell: SquareMazeCell = this.getCell(x, y) as SquareMazeCell;
+        this.sets.createSet(cell);
       }
     }
+  }
 
-    let prng: PseudoRandom = new PseudoRandom();
-    prng.seed =  seed > 0 ? seed : new Date().getTime();
-
-    wallList.shuffle(prng);
-
-    while ( wallList.size > 0 ) {
-      wall = wallList.removeHead();
-
-      if (sets.findSet(wall.cellA) === sets.findSet(wall.cellB)) {
-        continue;
-      }
-
-      sets.mergeSet(wall.cellA, wall.cellB);
+  public iterate(): boolean {
+    let wall = this.getNextWall();
+    if (wall != null) {
+      this.sets.mergeSet(wall.cellA, wall.cellB);
 
       if ( wall.cellA.xPos > wall.cellB.xPos ) {
         wall.cellA.removeWall(SquareWall.Left);
@@ -161,20 +188,14 @@ export class SquareMazeGrid extends MazeGrid {
         wall.cellA.removeWall(SquareWall.Bottom);
         wall.cellB.removeWall(SquareWall.Top);
       }
+
+      wall.cellA.visited = true;
+      wall.cellB.visited = true;
+
+      return false;
+    } else {
+      return true;
     }
-
-    // Add start and end.
-    mazeGrid.createExitCells(prng);
-
-    return mazeGrid;
-  }
-
-  constructor(width: number, height: number) {
-    super();
-    this.gridWidth = width;
-    this.gridHeight = height;
-
-    this.initGrid();
   }
 
   public getCell(x: number, y: number): MazeCell {
@@ -182,7 +203,23 @@ export class SquareMazeGrid extends MazeGrid {
     return this.grid[ind];
   }
 
-  public createExitCells(prng: PseudoRandom): void {
+  private getNextWall(): SquareMazeWall {
+    if (this.wallList.size > 0) {
+      let wall: SquareMazeWall = this.wallList.removeHead();
+      while (this.sets.findSet(wall.cellA) === this.sets.findSet(wall.cellB)) {
+        if (this.wallList.size > 0) {
+          wall = this.wallList.removeHead();
+        } else {
+          return null;
+        }
+      }
+      return wall;
+    } else {
+      return null;
+    }
+  }
+
+  private createExitCells(prng: PseudoRandom): void {
     let outerWall: SquareWall = prng.nextIntRange(0, 3);
     let xPos = 0;
     let yPos = 0;
@@ -224,23 +261,5 @@ export class SquareMazeGrid extends MazeGrid {
     }
 
     this.gridEndCell = this.getCell(xPos, yPos);
-  }
-
-  protected initGrid(): void {
-    this.shift = 0;
-    let minLength: number = this.gridWidth * this.gridHeight;
-    let powOfTwo: number = 1;
-    while ( powOfTwo < minLength ) {
-      powOfTwo *= 2;
-      this.shift++;
-    }
-
-    this.grid = new Array<MazeCell>(this.gridWidth << this.shift);
-    for ( let x: number = 0; x < this.gridWidth; x++ ) {
-      for ( let y: number = 0; y < this.gridHeight; y++ ) {
-        let ind: number = (x << this.shift) | y;
-        this.grid[ind] = new SquareMazeCell(x, y);
-      }
-    }
   }
 }
