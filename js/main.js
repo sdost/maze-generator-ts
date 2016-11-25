@@ -11,33 +11,64 @@ if(window.Worker) {
   var worker = new Worker("js/worker.js");
   generate.onclick = function() {
     disableButtons();
-    var data = context.createImageData(canvas.width, canvas.height);
-    worker.postMessage({ action: "gen_maze", values: { width: width.value, height: height.value, seed: seed.value, imageData: data } });
+    let data = context.createImageData(canvas.width, canvas.height);
+    let message = {
+      action: "gen_maze",
+      values: {
+        width: width.value,
+        height: height.value,
+        seed: seed.value,
+        imageData: data
+      }
+    };
+    worker.postMessage(message, [message.values.imageData.data.buffer]);
   };
   solve.onclick = function() {
     disableButtons();
     var data = context.createImageData(canvas.width, canvas.height);
-    worker.postMessage({ action: "solve_maze", values: { imageData: data } });
+    let message = {
+      action: "solve_maze",
+      values: {
+        imageData: data
+      }
+    };
+    worker.postMessage(message, [message.values.imageData.data.buffer]);
   };
   worker.onmessage = function(e) {
     if (e.data.action === "render_maze") {
-      context.putImageData(e.data.values.imageData, 0, 0);
+      createImageBitmap(e.data.values.imageData).then(function(bitmap) {
+        context.drawImage(bitmap, 0, 0);
+      });
       if (e.data.values.iterate) {
-        var data = context.createImageData(canvas.width, canvas.height);
-        worker.postMessage({ action: "iterate_maze", values: { imageData: data } });
+        let message = {
+          action: "iterate_maze",
+          values: {
+            imageData: e.data.values.imageData
+          }
+        };
+        worker.postMessage(message, [message.values.imageData.data.buffer]);
       } else {
         enableButtons();
       }
     } else if (e.data.action === "render_solution") {
-      context.putImageData(e.data.values.imageData, 0, 0);
+      createImageBitmap(e.data.values.imageData).then(function(bitmap) {
+        context.drawImage(bitmap, 0, 0);
+      });
       if (e.data.values.iterate) {
-        var data = context.createImageData(canvas.width, canvas.height);
-        worker.postMessage({ action: "iterate_solution", values: { imageData: data } });
+        let message = {
+          action: "iterate_solution",
+          values: {
+            imageData: e.data.values.imageData
+          }
+        };
+        worker.postMessage(message, [message.values.imageData.data.buffer]);
       } else {
         enableButtons();
       }
     } else if (e.data.action === "render") {
-      context.putImageData(e.data.values.imageData, 0, 0);
+      createImageBitmap(e.data.values.imageData).then(function(bitmap) {
+        context.drawImage(bitmap, 0, 0);
+      });
     }
   };
 }
@@ -48,7 +79,13 @@ function resizeCanvas() {
 
   if(worker) {
     var data = context.createImageData(canvas.width, canvas.height);
-    worker.postMessage({ action: "render", values: { imageData: data } });
+    let message = {
+      action: "render",
+      values: {
+        imageData: data
+      }
+    };
+    worker.postMessage(message, [message.values.imageData.data.buffer]);
   }
 }
 
