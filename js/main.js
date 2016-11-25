@@ -11,6 +11,7 @@ if(window.Worker) {
   var worker = new Worker("js/worker.js");
   generate.onclick = function() {
     disableButtons();
+    context.clearRect(0, 0, canvas.width, canvas.height);
     let data = context.createImageData(canvas.width, canvas.height);
     let message = {
       action: "gen_maze",
