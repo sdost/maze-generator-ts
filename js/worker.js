@@ -3,8 +3,6 @@ importScripts("../dist/tsc.js");
 
 require(['MazeWorker'], function(MazeWorker) {
   let worker = new MazeWorker.MazeWorker();
-  var iterator;
-  var imageData;
   onmessage = e => {
     if (e.data.action === "gen_maze") {
       worker.generateMaze(e.data.values.width, e.data.values.height, e.data.values.seed);

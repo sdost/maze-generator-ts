@@ -527,7 +527,7 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
             if (scale === void 0) { scale = 1.0; }
             var xOffset = cell.xPos * scale;
             var yOffset = cell.yPos * scale;
-            SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset + scale, yOffset + scale, r, g, b, a);
+            SquareMazeRenderer.drawRect(img, xOffset + 1, yOffset + 1, xOffset + scale - 1, yOffset + scale - 1, r, g, b, a);
         };
         SquareMazeRenderer.renderWalls = function (img, cell, scale, r, g, b, a) {
             if (scale === void 0) { scale = 1.0; }
@@ -548,6 +548,7 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
         };
         SquareMazeRenderer.renderGrid = function (img, maze, scale) {
             if (scale === void 0) { scale = 1.0; }
+            SquareMazeRenderer.drawRect(img, 0, 0, maze.width * scale, maze.height * scale, 1.0, 1.0, 1.0, 1.0);
             for (var x = 0; x < maze.width; x++) {
                 for (var y = 0; y < maze.height; y++) {
                     var cell = maze.getCell(x, y);
@@ -560,15 +561,7 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
                     else if (!cell.visited) {
                         SquareMazeRenderer.renderCell(img, cell, scale, 0.8, 0.8, 0.8, 1.0);
                     }
-                    else {
-                        SquareMazeRenderer.renderCell(img, cell, scale, 1.0, 1.0, 1.0, 1.0);
-                    }
-                }
-            }
-            for (var x = 0; x < maze.width; x++) {
-                for (var y = 0; y < maze.height; y++) {
-                    var cell = maze.getCell(x, y);
-                    SquareMazeRenderer.renderWalls(img, cell, scale, 0, 0, 0, 1.0);
+                    SquareMazeRenderer.renderWalls(img, cell, scale, 0.2, 0.2, 0.2, 1.0);
                 }
             }
         };
@@ -586,10 +579,10 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
             r *= a;
             g *= a;
             b *= a;
-            img.data[index + 0] = (img.data[index + 0] * invAlpha) + (255 * r);
-            img.data[index + 1] = (img.data[index + 1] * invAlpha) + (255 * g);
-            img.data[index + 2] = (img.data[index + 2] * invAlpha) + (255 * b);
-            img.data[index + 3] = (img.data[index + 3] * invAlpha) + (255 * a);
+            img.data[index] = (img.data[index++] * invAlpha) + (255 * r);
+            img.data[index] = (img.data[index++] * invAlpha) + (255 * g);
+            img.data[index] = (img.data[index++] * invAlpha) + (255 * b);
+            img.data[index] = (img.data[index] * invAlpha) + (255 * a);
         };
         SquareMazeRenderer.drawLine = function (img, x0, y0, x1, y1, r, g, b, a) {
             var dX = x1 - x0;

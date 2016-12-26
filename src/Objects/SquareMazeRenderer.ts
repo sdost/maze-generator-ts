@@ -9,7 +9,7 @@ export class SquareMazeRenderer {
     const xOffset: number = cell.xPos * scale;
     const yOffset: number = cell.yPos * scale;
 
-    SquareMazeRenderer.drawRect(img, xOffset, yOffset, xOffset + scale, yOffset + scale, r, g, b, a);
+    SquareMazeRenderer.drawRect(img, xOffset + 1, yOffset + 1, xOffset + scale - 1, yOffset + scale - 1, r, g, b, a);
   }
 
   public static renderWalls(img: ImageData,
@@ -39,6 +39,8 @@ export class SquareMazeRenderer {
   public static renderGrid(img: ImageData,
                            maze: SquareMazeGrid,
                            scale: number = 1.0): void {
+    SquareMazeRenderer.drawRect(img, 0, 0, maze.width * scale, maze.height * scale, 1.0, 1.0, 1.0, 1.0);
+
     for ( let x: number = 0; x < maze.width; x++ ) {
       for ( let y: number = 0; y < maze.height; y++ ) {
         let cell: SquareMazeCell = maze.getCell(x, y) as SquareMazeCell;
@@ -48,16 +50,9 @@ export class SquareMazeRenderer {
           SquareMazeRenderer.renderCell(img, cell, scale, 0.8, 0, 0, 1.0);
         } else if (!cell.visited) {
           SquareMazeRenderer.renderCell(img, cell, scale, 0.8, 0.8, 0.8, 1.0);
-        } else {
-          SquareMazeRenderer.renderCell(img, cell, scale, 1.0, 1.0, 1.0, 1.0);
         }
-      }
-    }
 
-    for ( let x: number = 0; x < maze.width; x++ ) {
-      for ( let y: number = 0; y < maze.height; y++ ) {
-        let cell: SquareMazeCell = maze.getCell(x, y) as SquareMazeCell;
-        SquareMazeRenderer.renderWalls(img, cell, scale, 0, 0, 0, 1.0);
+        SquareMazeRenderer.renderWalls(img, cell, scale, 0.2, 0.2, 0.2, 1.0);
       }
     }
   }
@@ -81,10 +76,10 @@ export class SquareMazeRenderer {
     g *= a;
     b *= a;
 
-    img.data[index + 0] = (img.data[index + 0] * invAlpha) + (255 * r);
-    img.data[index + 1] = (img.data[index + 1] * invAlpha) + (255 * g);
-    img.data[index + 2] = (img.data[index + 2] * invAlpha) + (255 * b);
-    img.data[index + 3] = (img.data[index + 3] * invAlpha) + (255 * a);
+    img.data[index] = (img.data[index++] * invAlpha) + (255 * r);
+    img.data[index] = (img.data[index++] * invAlpha) + (255 * g);
+    img.data[index] = (img.data[index++] * invAlpha) + (255 * b);
+    img.data[index] = (img.data[index] * invAlpha) + (255 * a);
   }
 
   private static drawLine(img: ImageData, x0: number, y0: number, x1: number, y1: number,

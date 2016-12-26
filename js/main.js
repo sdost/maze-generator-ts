@@ -12,7 +12,7 @@ if(window.Worker) {
   var worker = new Worker("js/worker.js");
   generate.onclick = function() {
     disableButtons();
-    let data = new ImageData(canvas.width, canvas.height);
+    let data = new ImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2));
     let message = {
       action: "gen_maze",
       values: {
@@ -26,7 +26,7 @@ if(window.Worker) {
   };
   solve.onclick = function() {
     disableButtons();
-    var data = new ImageData(canvas.width, canvas.height);
+    let data = new ImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2));
     let message = {
       action: "solve_maze",
       values: {
@@ -73,7 +73,7 @@ function resizeCanvas() {
   canvas.height = window.innerHeight - 60;
 
   if(worker) {
-    var data = new ImageData(canvas.width, canvas.height);
+    let data = new ImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2));
     let message = {
       action: "render",
       values: {
