@@ -6,12 +6,15 @@ require(['MazeWorker'], function(MazeWorker) {
   onmessage = e => {
     if (e.data.action === "gen_maze") {
       worker.generateMaze(e.data.values.width, e.data.values.height, e.data.values.seed);
+      if(!e.data.values.animate) {
+        while(!worker.iterateMaze()) {}
+      }
       let data = worker.render(e.data.values.imageData);
       let message = {
         action: "render_maze",
         values: {
           imageData: data,
-          iterate: true
+          iterate: e.data.values.animate
         }
       };
       postMessage(message, [message.values.imageData.data.buffer]);
@@ -28,12 +31,15 @@ require(['MazeWorker'], function(MazeWorker) {
       postMessage(message, [message.values.imageData.data.buffer]);
     } else if (e.data.action === "solve_maze") {
       worker.solveMaze();
+      if(!e.data.values.animate) {
+        while(!worker.iterateSolution()) {}
+      }
       let data = worker.render(e.data.values.imageData);
       let message = {
         action: "render_solution",
         values: {
           imageData: data,
-          iterate: true
+          iterate: e.data.values.animate
         }
       };
       postMessage(message, [message.values.imageData.data.buffer]);

@@ -6,6 +6,7 @@ var solve = document.getElementById('solve');
 var width = document.getElementById('maze_width');
 var height = document.getElementById('maze_height');
 var seed = document.getElementById('maze_seed');
+var animate = document.getElementById('maze_animate');
 window.addEventListener('resize', resizeCanvas, false);
 resizeCanvas();
 if(window.Worker) {
@@ -19,7 +20,8 @@ if(window.Worker) {
         width: width.value,
         height: height.value,
         seed: seed.value,
-        imageData: data
+        imageData: data,
+        animate: animate.checked
       }
     };
     worker.postMessage(message, [message.values.imageData.data.buffer]);
@@ -30,7 +32,8 @@ if(window.Worker) {
     let message = {
       action: "solve_maze",
       values: {
-        imageData: data
+        imageData: data,
+        animate: animate.checked
       }
     };
     worker.postMessage(message, [message.values.imageData.data.buffer]);
