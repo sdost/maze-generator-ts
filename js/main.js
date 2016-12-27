@@ -72,8 +72,8 @@ if(window.Worker) {
 }
 
 function resizeCanvas() {
-  canvas.width = canvas.offsetWidth - 1;
-  canvas.height = canvas.offsetHeight - 1;
+  canvas.width = canvas.offsetWidth - 10;
+  canvas.height = canvas.offsetHeight - 10;
 
   if(worker) {
     let data = new ImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2));
