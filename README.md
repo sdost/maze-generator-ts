@@ -10,4 +10,4 @@ The main goal of this project was to create a displayable version of the origina
 
 ##Next Steps
 
-* Compatibility with Safari
+* Cleanup the UI
