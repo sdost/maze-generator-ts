@@ -3,19 +3,35 @@
 <head>
 <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 <meta content="utf-8" http-equiv="encoding">
+<link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
-<canvas id="cnvs" height="480" width="640"></canvas>
-<form>
-  <label for="maze_width">Maze Width</label>
-  <input id="maze_width" type="text" value="30" />
-  <label for="maze_height">Maze Height</label>
-  <input id="maze_height" type="text" value="30" />
-  <label for="maze_seed">Seed</label>
-  <input id="maze_seed" type="text" value="1" />
-  <input id="generate" type="button" value="Generate Maze"/>
-  <input id="solve" type="button" value="Solve Maze" />
-</form>
+<div class="outer">
+  <div id="container" class="container">
+    <canvas class="canvas" id="cnvs" width="600" height="600"></canvas>
+  </div>
+  <div class="controls">
+    <form class="form">
+      <fieldset class="fieldset">
+        <legend>Maze Parameters</legend>
+        <p>
+          <label for="maze_width">Width</label>
+          <input id="maze_width" type="text" value="30" />
+        </p>
+        <p>
+          <label for="maze_height">Height</label>
+          <input id="maze_height" type="text" value="30" />
+        </p>
+        <p>
+          <label for="maze_seed">Seed (leave blank for random)</label>
+          <input id="maze_seed" type="text" value="1" />
+        </p>
+      </fieldset>
+      <input id="generate" type="button" value="Generate Maze"/>
+      <input id="solve" type="button" value="Solve Maze" />
+    </form>
+  </div>
+</div>
 <script id="2d-vertex-shader" type="x-shader/x-vertex">
 attribute vec2 a_position;
 attribute vec2 a_texCoord;
