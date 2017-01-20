@@ -40,81 +40,55 @@ export class SquareMazeSolver {
     let lastCell = this.currentCell;
     this.currentCell = this.currentPath.tail.data;
 
-    let w: number = getRightHandWall(this.facing);
-    if ( this.currentCell.hasWall(w) ) {
-      if ( this.currentCell.hasWall(this.facing) ) {
+    if (this.currentCell.hasWall(this.facing)) {
+      let w: number = getRightHandWall(this.facing);
+      if (this.currentCell.hasWall(w)) {
         this.facing = getLeftHandWall(this.facing);
       } else {
-        let x = this.currentCell.xPos;
-        let y = this.currentCell.yPos;
-
-        switch (this.facing) {
-          case SquareWall.Top:
-            y--;
-            break;
-          case SquareWall.Bottom:
-            y++;
-            break;
-          case SquareWall.Left:
-            x--;
-            break;
-          case SquareWall.Right:
-            x++;
-            break;
-          default:
-            break;
-        }
-        let nextCell = this.maze.getCell(x, y) as SquareMazeCell;
-
-        if (nextCell != null) {
-          if (this.currentPath.contains(nextCell)) {
-            this.currentPath.tail.unlink();
-          } else if ( nextCell === lastCell ) {
-            this.currentPath.tail.unlink();
-          } else {
-            this.currentPath.append(nextCell);
-          }
-        }
-      }
-    } else {
-      this.facing = getRightHandWall(this.facing);
-      let x = this.currentCell.xPos;
-      let y = this.currentCell.yPos;
-
-      switch (this.facing) {
-        case SquareWall.Top:
-          y--;
-          break;
-        case SquareWall.Bottom:
-          y++;
-          break;
-        case SquareWall.Left:
-          x--;
-          break;
-        case SquareWall.Right:
-          x++;
-          break;
-        default:
-          break;
-      }
-      let nextCell = this.maze.getCell(x, y) as SquareMazeCell;
-
-      if (nextCell != null) {
-        if (this.currentPath.contains(nextCell)) {
-          this.currentPath.tail.unlink();
-        } else if ( nextCell === lastCell ) {
-          this.currentPath.tail.unlink();
-        } else {
-          this.currentPath.append(nextCell);
-        }
+        this.facing = w;
       }
     }
+
+    this.advance(lastCell);
 
     return false;
   }
 
   public get path(): LinkedList<SquareMazeCell> {
     return this.currentPath;
+  }
+
+  private advance(lastCell: SquareMazeCell): void {
+    let x = this.currentCell.xPos;
+    let y = this.currentCell.yPos;
+
+    switch (this.facing) {
+      case SquareWall.Top:
+        y--;
+        break;
+      case SquareWall.Bottom:
+        y++;
+        break;
+      case SquareWall.Left:
+        x--;
+        break;
+      case SquareWall.Right:
+        x++;
+        break;
+      default:
+        break;
+    }
+    let nextCell = this.maze.getCell(x, y) as SquareMazeCell;
+
+    if (nextCell != null) {
+      if (this.currentPath.contains(nextCell)) {
+        this.currentPath.tail.unlink();
+      } else if ( nextCell === lastCell ) {
+        this.currentPath.tail.unlink();
+      } else {
+        this.currentPath.append(nextCell);
+      }
+    }
   }
 }
 

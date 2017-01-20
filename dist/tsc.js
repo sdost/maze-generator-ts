@@ -641,77 +641,16 @@ define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/Linked
             }
             var lastCell = this.currentCell;
             this.currentCell = this.currentPath.tail.data;
-            var w = getRightHandWall(this.facing);
-            if (this.currentCell.hasWall(w)) {
-                if (this.currentCell.hasWall(this.facing)) {
+            if (this.currentCell.hasWall(this.facing)) {
+                var w = getRightHandWall(this.facing);
+                if (this.currentCell.hasWall(w)) {
                     this.facing = getLeftHandWall(this.facing);
                 }
                 else {
-                    var x = this.currentCell.xPos;
-                    var y = this.currentCell.yPos;
-                    switch (this.facing) {
-                        case 0 /* Top */:
-                            y--;
-                            break;
-                        case 2 /* Bottom */:
-                            y++;
-                            break;
-                        case 3 /* Left */:
-                            x--;
-                            break;
-                        case 1 /* Right */:
-                            x++;
-                            break;
-                        default:
-                            break;
-                    }
-                    var nextCell = this.maze.getCell(x, y);
-                    if (nextCell != null) {
-                        if (this.currentPath.contains(nextCell)) {
-                            this.currentPath.tail.unlink();
-                        }
-                        else if (nextCell === lastCell) {
-                            this.currentPath.tail.unlink();
-                        }
-                        else {
-                            this.currentPath.append(nextCell);
-                        }
-                    }
+                    this.facing = w;
                 }
             }
-            else {
-                this.facing = getRightHandWall(this.facing);
-                var x = this.currentCell.xPos;
-                var y = this.currentCell.yPos;
-                switch (this.facing) {
-                    case 0 /* Top */:
-                        y--;
-                        break;
-                    case 2 /* Bottom */:
-                        y++;
-                        break;
-                    case 3 /* Left */:
-                        x--;
-                        break;
-                    case 1 /* Right */:
-                        x++;
-                        break;
-                    default:
-                        break;
-                }
-                var nextCell = this.maze.getCell(x, y);
-                if (nextCell != null) {
-                    if (this.currentPath.contains(nextCell)) {
-                        this.currentPath.tail.unlink();
-                    }
-                    else if (nextCell === lastCell) {
-                        this.currentPath.tail.unlink();
-                    }
-                    else {
-                        this.currentPath.append(nextCell);
-                    }
-                }
-            }
+            this.advance(lastCell);
             return false;
         };
         Object.defineProperty(SquareMazeSolver.prototype, "path", {
@@ -721,6 +660,38 @@ define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/Linked
             enumerable: true,
             configurable: true
         });
+        SquareMazeSolver.prototype.advance = function (lastCell) {
+            var x = this.currentCell.xPos;
+            var y = this.currentCell.yPos;
+            switch (this.facing) {
+                case 0 /* Top */:
+                    y--;
+                    break;
+                case 2 /* Bottom */:
+                    y++;
+                    break;
+                case 3 /* Left */:
+                    x--;
+                    break;
+                case 1 /* Right */:
+                    x++;
+                    break;
+                default:
+                    break;
+            }
+            var nextCell = this.maze.getCell(x, y);
+            if (nextCell != null) {
+                if (this.currentPath.contains(nextCell)) {
+                    this.currentPath.tail.unlink();
+                }
+                else if (nextCell === lastCell) {
+                    this.currentPath.tail.unlink();
+                }
+                else {
+                    this.currentPath.append(nextCell);
+                }
+            }
+        };
         SquareMazeSolver.RIGHT_HAND = 0;
         SquareMazeSolver.LEFT_HAND = 1;
         return SquareMazeSolver;
