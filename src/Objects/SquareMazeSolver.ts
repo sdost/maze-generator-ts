@@ -40,13 +40,13 @@ export class SquareMazeSolver {
     let lastCell = this.currentCell;
     this.currentCell = this.currentPath.tail.data;
 
-    if (this.currentCell.hasWall(this.facing)) {
-      let w: number = getRightHandWall(this.facing);
-      if (this.currentCell.hasWall(w)) {
+    let w: number = getRightHandWall(this.facing);
+    if (this.currentCell.hasWall(w)) {
+      if (this.currentCell.hasWall(this.facing)) {
         this.facing = getLeftHandWall(this.facing);
-      } else {
-        this.facing = w;
       }
+    } else {
+      this.facing = w;
     }
 
     this.advance(lastCell);
