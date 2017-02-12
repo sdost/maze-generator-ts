@@ -41,16 +41,14 @@ export class SquareMazeSolver {
     this.currentCell = this.currentPath.tail.data;
 
     let w: number = getRightHandWall(this.facing);
-    if (this.currentCell.hasWall(w)) {
-      if (this.currentCell.hasWall(this.facing)) {
-        this.facing = getLeftHandWall(this.facing);
-      }
-    } else {
+    if (!this.currentCell.hasWall(w)) {
       this.facing = w;
+    } else if (this.currentCell.hasWall(this.facing)) {
+        this.facing = getLeftHandWall(this.facing);
+        return false;
     }
 
     this.advance(lastCell);
-
     return false;
   }
 
