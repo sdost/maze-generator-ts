@@ -641,14 +641,13 @@ define("Objects/SquareMazeSolver", ["require", "exports", "DataStructures/Linked
             }
             var lastCell = this.currentCell;
             this.currentCell = this.currentPath.tail.data;
-            if (this.currentCell.hasWall(this.facing)) {
-                var w = getRightHandWall(this.facing);
-                if (this.currentCell.hasWall(w)) {
-                    this.facing = getLeftHandWall(this.facing);
-                }
-                else {
-                    this.facing = w;
-                }
+            var w = getRightHandWall(this.facing);
+            if (!this.currentCell.hasWall(w)) {
+                this.facing = w;
+            }
+            else if (this.currentCell.hasWall(this.facing)) {
+                this.facing = getLeftHandWall(this.facing);
+                return false;
             }
             this.advance(lastCell);
             return false;
