@@ -101,26 +101,27 @@ export class SquareMazeGrid extends MazeGrid {
     this.wallList = new Array<SquareMazeWall>();
 
     for (let cell of this.grid) {
+      let cellA: SquareMazeCell = cell as SquareMazeCell;
       let cellB: SquareMazeCell;
 
-      if ( cell.xPos > 0 ) {
-        cellB = this.getCell(cell.xPos - 1, cell.yPos) as SquareMazeCell;
-        this.addWall(cell as SquareMazeCell, cellB);
+      if ( cellA.xPos > 0 ) {
+        cellB = this.getCell(cellA.xPos - 1, cellA.yPos) as SquareMazeCell;
+        this.addWall(cellA, cellB);
       }
 
-      if ( cell.yPos > 0 ) {
-        cellB = this.getCell(cell.xPos, cell.yPos - 1) as SquareMazeCell;
-        this.addWall(cell as SquareMazeCell, cellB);
+      if ( cellA.yPos > 0 ) {
+        cellB = this.getCell(cellA.xPos, cellA.yPos - 1) as SquareMazeCell;
+        this.addWall(cellA, cellB);
       }
 
-      if ( cell.xPos < (this.width - 1) ) {
-        cellB = this.getCell(cell.xPos + 1, cell.yPos) as SquareMazeCell;
-        this.addWall(cell as SquareMazeCell, cellB);
+      if ( cellA.xPos < (this.width - 1) ) {
+        cellB = this.getCell(cellA.xPos + 1, cellA.yPos) as SquareMazeCell;
+        this.addWall(cellA, cellB);
       }
 
-      if ( cell.yPos < (this.height - 1) ) {
-        cellB = this.getCell(cell.xPos, cell.yPos + 1) as SquareMazeCell;
-        this.addWall(cell as SquareMazeCell, cellB);
+      if ( cellA.yPos < (this.height - 1) ) {
+        cellB = this.getCell(cellA.xPos, cellA.yPos + 1) as SquareMazeCell;
+        this.addWall(cellA, cellB);
       }
     }
 

@@ -368,22 +368,23 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             this.wallList = new Array();
             for (var _i = 0, _a = this.grid; _i < _a.length; _i++) {
                 var cell = _a[_i];
+                var cellA = cell;
                 var cellB = void 0;
-                if (cell.xPos > 0) {
-                    cellB = this.getCell(cell.xPos - 1, cell.yPos);
-                    this.addWall(cell, cellB);
+                if (cellA.xPos > 0) {
+                    cellB = this.getCell(cellA.xPos - 1, cellA.yPos);
+                    this.addWall(cellA, cellB);
                 }
-                if (cell.yPos > 0) {
-                    cellB = this.getCell(cell.xPos, cell.yPos - 1);
-                    this.addWall(cell, cellB);
+                if (cellA.yPos > 0) {
+                    cellB = this.getCell(cellA.xPos, cellA.yPos - 1);
+                    this.addWall(cellA, cellB);
                 }
-                if (cell.xPos < (this.width - 1)) {
-                    cellB = this.getCell(cell.xPos + 1, cell.yPos);
-                    this.addWall(cell, cellB);
+                if (cellA.xPos < (this.width - 1)) {
+                    cellB = this.getCell(cellA.xPos + 1, cellA.yPos);
+                    this.addWall(cellA, cellB);
                 }
-                if (cell.yPos < (this.height - 1)) {
-                    cellB = this.getCell(cell.xPos, cell.yPos + 1);
-                    this.addWall(cell, cellB);
+                if (cellA.yPos < (this.height - 1)) {
+                    cellB = this.getCell(cellA.xPos, cellA.yPos + 1);
+                    this.addWall(cellA, cellB);
                 }
             }
             var s = this.wallList.length;
