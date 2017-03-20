@@ -98,7 +98,6 @@ export class SquareMazeGrid extends MazeGrid {
       }
     }
 
-    // this.wallList = new LinkedList<SquareMazeWall>();
     this.wallList = new Array<SquareMazeWall>();
 
     for (let cell of this.grid) {
@@ -119,7 +118,7 @@ export class SquareMazeGrid extends MazeGrid {
         this.addWall(cell as SquareMazeCell, cellB);
       }
 
-      if ( cell.xPos < (this.height + 1) ) {
+      if ( cell.yPos < (this.height - 1) ) {
         cellB = this.getCell(cell.xPos, cell.yPos + 1) as SquareMazeCell;
         this.addWall(cell as SquareMazeCell, cellB);
       }

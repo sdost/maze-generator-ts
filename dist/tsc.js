@@ -365,7 +365,6 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     this.grid[ind] = new SquareMazeCell(x, y);
                 }
             }
-            // this.wallList = new LinkedList<SquareMazeWall>();
             this.wallList = new Array();
             for (var _i = 0, _a = this.grid; _i < _a.length; _i++) {
                 var cell = _a[_i];
@@ -382,7 +381,7 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                     cellB = this.getCell(cell.xPos + 1, cell.yPos);
                     this.addWall(cell, cellB);
                 }
-                if (cell.xPos < (this.height + 1)) {
+                if (cell.yPos < (this.height - 1)) {
                     cellB = this.getCell(cell.xPos, cell.yPos + 1);
                     this.addWall(cell, cellB);
                 }
