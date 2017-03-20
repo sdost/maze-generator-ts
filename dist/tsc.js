@@ -368,6 +368,9 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             this.wallList = new Array();
             for (var _i = 0, _a = this.grid; _i < _a.length; _i++) {
                 var cell = _a[_i];
+                if (cell == null) {
+                    continue;
+                }
                 var cellA = cell;
                 var cellB = void 0;
                 if (cellA.xPos > 0) {
@@ -398,6 +401,9 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             this.sets = new DisjointSet_1.DisjointSet(this.width * this.height);
             for (var _b = 0, _c = this.grid; _b < _c.length; _b++) {
                 var cell = _c[_b];
+                if (cell == null) {
+                    continue;
+                }
                 this.sets.createSet(cell);
             }
         };

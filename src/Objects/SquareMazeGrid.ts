@@ -101,6 +101,10 @@ export class SquareMazeGrid extends MazeGrid {
     this.wallList = new Array<SquareMazeWall>();
 
     for (let cell of this.grid) {
+      if ( cell == null) {
+        continue;
+      }
+
       let cellA: SquareMazeCell = cell as SquareMazeCell;
       let cellB: SquareMazeCell;
 
@@ -137,6 +141,10 @@ export class SquareMazeGrid extends MazeGrid {
     this.sets = new DisjointSet<SquareMazeCell>(this.width * this.height);
 
     for (let cell of this.grid) {
+      if ( cell == null) {
+        continue;
+      }
+
       this.sets.createSet(cell);
     }
   }
