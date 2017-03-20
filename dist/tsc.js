@@ -367,47 +367,24 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
             }
             // this.wallList = new LinkedList<SquareMazeWall>();
             this.wallList = new Array();
-            var wall;
-            for (var x = 0; x < this.width; x++) {
-                for (var y = 0; y < this.height; y++) {
-                    var cellA = this.getCell(x, y);
-                    var cellB = void 0;
-                    if (x > 0) {
-                        cellB = this.getCell(x - 1, y);
-                        if (cellB != null) {
-                            wall = new SquareMazeWall(cellA, cellB);
-                            if (!this.wallList.some(function (val) { return wall.equals(val); })) {
-                                this.wallList.push(wall);
-                            }
-                        }
-                    }
-                    if (y > 0) {
-                        cellB = this.getCell(x, y - 1);
-                        if (cellB != null) {
-                            wall = new SquareMazeWall(cellA, cellB);
-                            if (!this.wallList.some(function (val) { return wall.equals(val); })) {
-                                this.wallList.push(wall);
-                            }
-                        }
-                    }
-                    if (x < (this.width - 1)) {
-                        cellB = this.getCell(x + 1, y);
-                        if (cellB != null) {
-                            wall = new SquareMazeWall(cellA, cellB);
-                            if (!this.wallList.some(function (val) { return wall.equals(val); })) {
-                                this.wallList.push(wall);
-                            }
-                        }
-                    }
-                    if (y < (this.height - 1)) {
-                        cellB = this.getCell(x, y + 1);
-                        if (cellB != null) {
-                            wall = new SquareMazeWall(cellA, cellB);
-                            if (!this.wallList.some(function (val) { return wall.equals(val); })) {
-                                this.wallList.push(wall);
-                            }
-                        }
-                    }
+            for (var _i = 0, _a = this.grid; _i < _a.length; _i++) {
+                var cell = _a[_i];
+                var cellB = void 0;
+                if (cell.xPos > 0) {
+                    cellB = this.getCell(cell.xPos - 1, cell.yPos);
+                    this.addWall(cell, cellB);
+                }
+                if (cell.yPos > 0) {
+                    cellB = this.getCell(cell.xPos, cell.yPos - 1);
+                    this.addWall(cell, cellB);
+                }
+                if (cell.xPos < (this.width - 1)) {
+                    cellB = this.getCell(cell.xPos + 1, cell.yPos);
+                    this.addWall(cell, cellB);
+                }
+                if (cell.xPos < (this.height + 1)) {
+                    cellB = this.getCell(cell.xPos, cell.yPos + 1);
+                    this.addWall(cell, cellB);
                 }
             }
             var s = this.wallList.length;
@@ -419,11 +396,9 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
                 this.wallList[i] = temp;
             }
             this.sets = new DisjointSet_1.DisjointSet(this.width * this.height);
-            for (var x = 0; x < this.width; x++) {
-                for (var y = 0; y < this.height; y++) {
-                    var cell = this.getCell(x, y);
-                    this.sets.createSet(cell);
-                }
+            for (var _b = 0, _c = this.grid; _b < _c.length; _b++) {
+                var cell = _c[_b];
+                this.sets.createSet(cell);
             }
         };
         SquareMazeGrid.prototype.iterate = function () {
@@ -457,6 +432,14 @@ define("Objects/SquareMazeGrid", ["require", "exports", "DataStructures/Disjoint
         SquareMazeGrid.prototype.getCell = function (x, y) {
             var ind = (x << this.shift) | y;
             return this.grid[ind];
+        };
+        SquareMazeGrid.prototype.addWall = function (cellA, cellB) {
+            if (cellB != null) {
+                var wall_1 = new SquareMazeWall(cellA, cellB);
+                if (!this.wallList.some(function (val) { return wall_1.equals(val); })) {
+                    this.wallList.push(wall_1);
+                }
+            }
         };
         SquareMazeGrid.prototype.getNextWall = function () {
             if (this.wallList.length > 0) {
