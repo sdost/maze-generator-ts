@@ -63,7 +63,7 @@ export class SquareMazeRenderer {
     let itr: ListIterator<SquareMazeCell> = path.iterator;
     while (itr.hasNext()) {
       let cell: SquareMazeCell = itr.next();
-      SquareMazeRenderer.renderCell(img, cell, scale, 0.4, 0.6, 0.9, 0.4);
+      SquareMazeRenderer.renderCell(img, cell, scale, 0.2, 0.6, 0.9, 0.4);
     }
   }
 
