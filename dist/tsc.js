@@ -559,7 +559,7 @@ define("Objects/SquareMazeRenderer", ["require", "exports"], function (require, 
             var itr = path.iterator;
             while (itr.hasNext()) {
                 var cell = itr.next();
-                SquareMazeRenderer.renderCell(img, cell, scale, 0.39, 0.58, 0.93, 0.4);
+                SquareMazeRenderer.renderCell(img, cell, scale, 0.4, 0.6, 0.9, 0.4);
             }
         };
         SquareMazeRenderer.setPixel = function (img, x, y, r, g, b, a) {
