@@ -1,5 +1,4 @@
-import { MazeGrid, Solution, Position } from '../types/maze';
-import { BaseMazeCell } from './base-maze-cell';
+import { MazeGrid, Solution, Position, MazeCell } from '../types/maze';
 
 export class MazeRenderer {
   private ctx: CanvasRenderingContext2D;
@@ -76,7 +75,7 @@ export class MazeRenderer {
     this.drawCell(this.maze.getEndCell(), '#ff0000');
   }
 
-  private drawCell(cell: BaseMazeCell, color: string = '#000000'): void {
+  private drawCell(cell: MazeCell, color: string = '#000000'): void {
     const { x, y } = cell.position;
     const cellX = this.offsetX + x * this.cellSize;
     const cellY = this.offsetY + y * this.cellSize;

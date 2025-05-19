@@ -1,4 +1,4 @@
-import { MazeConfig, Solution } from '../types/maze';
+import { MazeConfig, Solution, Position } from '../types/maze';
 import { SquareMazeGrid } from '../objects/square-maze-grid';
 import { MazeSolver } from '../objects/maze-solver';
 
@@ -14,9 +14,9 @@ interface WorkerResponse {
     done?: boolean;
     maze?: SquareMazeGrid;
     solution?: Solution;
-    currentPath?: Solution;
-    openSet?: Set<string>;
-    closedSet?: Set<string>;
+    currentPath?: Position[];
+    openSet?: Position[];
+    closedSet?: Position[];
     message?: string;
   };
 }

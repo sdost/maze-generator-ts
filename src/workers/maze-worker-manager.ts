@@ -1,4 +1,4 @@
-import { MazeConfig, Solution } from '../types/maze';
+import { MazeConfig, Solution, Position } from '../types/maze';
 import { MazeRenderer } from '../objects/maze-renderer';
 import { SquareMazeGrid } from '../objects/square-maze-grid';
 
@@ -7,9 +7,9 @@ interface WorkerResponse {
   payload: {
     type?: string;
     currentState?: SquareMazeGrid;
-    currentPath?: Solution;
-    openSet?: Set<string>;
-    closedSet?: Set<string>;
+    currentPath?: Position[];
+    openSet?: Position[];
+    closedSet?: Position[];
     maze?: SquareMazeGrid;
     solution?: Solution;
     message?: string;
