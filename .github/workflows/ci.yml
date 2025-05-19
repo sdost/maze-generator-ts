@@ -66,4 +66,4 @@ jobs:
           enable_jekyll: false
           force_orphan: true
           commit_message: 'Deploy to GitHub Pages'
-          keep_files: true
+          keep_files: false
