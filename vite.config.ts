@@ -17,9 +17,7 @@ export default defineConfig({
       },
     },
     rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-      },
+      input: resolve(__dirname, 'index.html'),
       output: {
         manualChunks: {
           vendor: ['typescript'],
