@@ -50,4 +50,5 @@ export default defineConfig({
       'top-level-await': true,
     },
   },
+  publicDir: 'public',
 });
