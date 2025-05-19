@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { ghPages } from 'vite-plugin-gh-pages';
 
 export default defineConfig({
-  base: './',
+  base: '/maze-generator-ts/',
+  plugins: [ghPages()],
   build: {
     outDir: 'dist',
     target: 'esnext',
