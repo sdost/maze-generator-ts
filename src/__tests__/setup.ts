@@ -57,5 +57,14 @@ class MockCanvas {
 }
 
 // Add mocks to global scope
-global.WebGLRenderingContext = MockWebGLRenderingContext;
-global.HTMLCanvasElement = MockCanvas;
+Object.defineProperty(globalThis, 'WebGLRenderingContext', {
+  value: MockWebGLRenderingContext,
+  writable: true,
+  configurable: true,
+});
+
+Object.defineProperty(globalThis, 'HTMLCanvasElement', {
+  value: MockCanvas,
+  writable: true,
+  configurable: true,
+});
