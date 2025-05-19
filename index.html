@@ -1,70 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-<meta content="utf-8" http-equiv="encoding">
-<link rel="stylesheet" type="text/css" href="css/main.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            background-color: white;
+            margin: 20px 0;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-<div class="outer">
-  <div id="container" class="container">
-    <canvas class="canvas" id="cnvs" width="640" height="640"></canvas>
-  </div>
-  <div class="controls">
-    <form class="form">
-      <fieldset class="fieldset">
-        <legend>Maze Parameters</legend>
-        <p>
-          <label for="maze_width">Width</label>
-          <input id="maze_width" type="text" value="30" />
-        </p>
-        <p>
-          <label for="maze_height">Height</label>
-          <input id="maze_height" type="text" value="30" />
-        </p>
-        <p>
-          <label for="maze_seed">Seed</label>
-          <input id="maze_seed" type="text" value="1" />
-        </p>
-        <p>
-          <input id="maze_animate" type="checkbox" checked="checked" />
-          <label for="maze_animate">Animate?</label>
-        </p>
-      </fieldset>
-      <input id="generate" type="button" value="Generate Maze"/>
-      <input id="solve" type="button" value="Solve Maze" />
-    </form>
-  </div>
-</div>
-<script id="2d-vertex-shader" type="x-shader/x-vertex">
-attribute vec2 a_position;
-attribute vec2 a_texCoord;
-uniform vec2 u_resolution;
-varying vec2 v_texCoord;
-void main() {
-   // convert the rectangle from pixels to 0.0 to 1.0
-   vec2 zeroToOne = a_position / u_resolution;
-   // convert from 0->1 to 0->2
-   vec2 zeroToTwo = zeroToOne * 2.0;
-   // convert from 0->2 to -1->+1 (clipspace)
-   vec2 clipSpace = zeroToTwo - 1.0;
-   gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-   // pass the texCoord to the fragment shader
-   // The GPU will interpolate this value between points.
-   v_texCoord = a_texCoord;
-}
-</script>
-<script id="2d-fragment-shader" type="x-shader/x-fragment">
-precision mediump float;
-// our texture
-uniform sampler2D u_image;
-// the texCoords passed in from the vertex shader.
-varying vec2 v_texCoord;
-void main() {
-   gl_FragColor = texture2D(u_image, v_texCoord);
-}
-</script>
-<script src="resources/webgl-utils.js"></script>
-<script src="js/main.js"></script>
+    <h1>Maze Generator</h1>
+    <div class="controls">
+        <input type="number" id="width" value="20" min="5" max="50" placeholder="Width">
+        <input type="number" id="height" value="20" min="5" max="50" placeholder="Height">
+        <input type="number" id="seed" value="0" placeholder="Seed">
+        <button id="generate">Generate</button>
+        <button id="solve">Solve</button>
+    </div>
+    <canvas id="mazeCanvas"></canvas>
+    <script type="module" src="./src/main.ts"></script>
 </body>
 </html>

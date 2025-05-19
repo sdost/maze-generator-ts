@@ -1,10 +1,53 @@
-Maze Generator
-==============
+# Maze Generator
 
-A simple maze generator/solver written in Typescript based on an earlier project written in Actionscript.
+A TypeScript-based maze generator and solver with WebGL rendering.
 
-Running code hosted through Github Pages @ https://sdost.github.io/maze-generator-ts/
+## Live Demo
 
-## Description
+Visit the [live demo](https://sdost.github.io/maze-generator-ts/) to see the maze generator in action.
 
-The main goal of this project was to create a displayable version of the original ActionScript project, and I chose TypeScript because of its uncanny similarity to AS3. Along the way I ended up expanded the scope of the project to encompass more advanced usages of Canvas and experimenting with Web Workers.
+## Features
+
+- Generate random mazes with customizable width, height, and seed
+- Solve mazes using A* pathfinding algorithm
+- WebGL-based rendering for smooth performance
+- Animated maze generation and solving process
+
+## Development
+
+### Prerequisites
+
+- Node.js (v16 or higher)
+- npm (v7 or higher)
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/sdost/maze-generator-ts.git
+   cd maze-generator-ts
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Building
+
+To build the project for production:
+
+```bash
+npm run build
+```
+
+The built files will be in the `dist` directory.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
