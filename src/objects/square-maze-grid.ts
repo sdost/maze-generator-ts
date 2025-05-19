@@ -130,10 +130,15 @@ export class SquareMazeGrid implements MazeGrid {
     const grid = new SquareMazeGrid(config);
     const prng = new PseudoRandom(config.seed || Date.now());
 
-    // Shuffle walls
+    // Shuffle walls using Fisher-Yates algorithm with seeded random
     for (let i = grid.wallList.length - 1; i > 0; i--) {
-      const j = prng.nextIntRange(0, i);
+      const j = Math.floor(prng.nextDouble() * (i + 1));
       [grid.wallList[i], grid.wallList[j]] = [grid.wallList[j], grid.wallList[i]];
+    }
+
+    // Complete the maze generation
+    while (!grid.iterate()) {
+      // Keep iterating until complete
     }
 
     grid.createExitCells(prng);
