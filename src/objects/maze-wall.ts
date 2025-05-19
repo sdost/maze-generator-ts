@@ -1,5 +1,10 @@
 import { SquareMazeCell } from './square-maze-cell';
 
+interface MutableMazeWall extends MazeWall {
+  cellA: SquareMazeCell;
+  cellB: SquareMazeCell;
+}
+
 export class MazeWall {
   private static readonly wallPool: MazeWall[] = [];
   private static readonly MAX_POOL_SIZE = 10000;
@@ -11,9 +16,9 @@ export class MazeWall {
 
   public static create(cellA: SquareMazeCell, cellB: SquareMazeCell): MazeWall {
     if (this.wallPool.length > 0) {
-      const wall = this.wallPool.pop()!;
-      (wall as any).cellA = cellA;
-      (wall as any).cellB = cellB;
+      const wall = this.wallPool.pop()! as MutableMazeWall;
+      wall.cellA = cellA;
+      wall.cellB = cellB;
       return wall;
     }
     return new MazeWall(cellA, cellB);

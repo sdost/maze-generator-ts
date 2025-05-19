@@ -5,7 +5,7 @@ import { BaseWebGLRenderer, RendererConfig } from './webgl/base-webgl-renderer';
 export class WebGLMazeRenderer extends BaseWebGLRenderer implements IMazeRenderer {
   private static readonly DEFAULT_CONFIG: RendererConfig = {
     backgroundColor: [1, 1, 1, 1],
-    defaultColor: [0, 0, 0, 1]
+    defaultColor: [0, 0, 0, 1],
   };
 
   constructor(canvas: HTMLCanvasElement, config: Partial<RendererConfig> = {}) {
@@ -82,16 +82,13 @@ export class WebGLMazeRenderer extends BaseWebGLRenderer implements IMazeRendere
   private renderPath(solution: Solution): void {
     const positions: number[] = [];
     const colors: number[] = [];
-    const maxX = Math.max(...solution.path.map(p => p.x));
-    const maxY = Math.max(...solution.path.map(p => p.y));
+    const maxX = Math.max(...solution.path.map((p) => p.x));
+    const maxY = Math.max(...solution.path.map((p) => p.y));
     const cellSize = this.calculateCellSize(maxX + 1, maxY + 1);
 
     for (const point of solution.path) {
       const { x, y } = point;
-      positions.push(
-        x * cellSize + cellSize / 2,
-        y * cellSize + cellSize / 2
-      );
+      positions.push(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
       colors.push(1, 0, 0, 1); // Red path
     }
 
@@ -107,12 +104,7 @@ export class WebGLMazeRenderer extends BaseWebGLRenderer implements IMazeRendere
     y2: number,
     cellSize: number
   ): void {
-    positions.push(
-      x1 * cellSize,
-      y1 * cellSize,
-      x2 * cellSize,
-      y2 * cellSize
-    );
+    positions.push(x1 * cellSize, y1 * cellSize, x2 * cellSize, y2 * cellSize);
     colors.push(0, 0, 0, 1, 0, 0, 0, 1); // Black wall
   }
 }

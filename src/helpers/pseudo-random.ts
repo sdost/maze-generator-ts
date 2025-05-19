@@ -10,7 +10,8 @@ export class PseudoRandom {
   }
 
   public nextInt(): number {
-    this.seed = (this.seed * PseudoRandom.MULTIPLIER + PseudoRandom.INCREMENT) % PseudoRandom.MODULUS;
+    this.seed =
+      (this.seed * PseudoRandom.MULTIPLIER + PseudoRandom.INCREMENT) % PseudoRandom.MODULUS;
     return this.seed;
   }
 
@@ -23,6 +24,6 @@ export class PseudoRandom {
   }
 
   public nextDoubleRange(min: number, max: number): number {
-    return min + (this.nextDouble() * (max - min));
+    return min + this.nextDouble() * (max - min);
   }
 }

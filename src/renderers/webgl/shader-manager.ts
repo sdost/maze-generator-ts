@@ -28,7 +28,9 @@ export class ShaderManager {
   }
 
   private createShaderProgram(): WebGLProgram {
-    const vertexShader = this.createShader(this.gl.VERTEX_SHADER, `
+    const vertexShader = this.createShader(
+      this.gl.VERTEX_SHADER,
+      `
       attribute vec2 a_position;
       attribute vec4 a_color;
       uniform vec2 u_resolution;
@@ -38,16 +40,20 @@ export class ShaderManager {
         gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
         v_color = a_color;
       }
-    `);
+    `
+    );
 
-    const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, `
+    const fragmentShader = this.createShader(
+      this.gl.FRAGMENT_SHADER,
+      `
       precision mediump float;
       varying vec4 v_color;
       uniform vec4 u_color;
       void main() {
         gl_FragColor = v_color * u_color;
       }
-    `);
+    `
+    );
 
     const program = this.gl.createProgram()!;
     this.gl.attachShader(program, vertexShader);
@@ -67,9 +73,7 @@ export class ShaderManager {
     this.gl.compileShader(shader);
 
     if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-      throw new MazeRenderingError(
-        `Failed to compile shader: ${this.gl.getShaderInfoLog(shader)}`
-      );
+      throw new MazeRenderingError(`Failed to compile shader: ${this.gl.getShaderInfoLog(shader)}`);
     }
 
     return shader;

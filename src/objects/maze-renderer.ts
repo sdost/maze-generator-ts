@@ -1,5 +1,5 @@
-import { MazeGrid, Solution } from '../types/maze';
-import { Position } from '../types/maze';
+import { MazeGrid, Solution, Position } from '../types/maze';
+import { BaseMazeCell } from './base-maze-cell';
 
 export class MazeRenderer {
   private ctx: CanvasRenderingContext2D;
@@ -7,7 +7,10 @@ export class MazeRenderer {
   private offsetX: number = 0;
   private offsetY: number = 0;
 
-  constructor(private canvas: HTMLCanvasElement, private maze: MazeGrid) {
+  constructor(
+    private canvas: HTMLCanvasElement,
+    private maze: MazeGrid
+  ) {
     const context = canvas.getContext('2d');
     if (!context) {
       throw new Error('Could not get canvas context');
@@ -73,7 +76,7 @@ export class MazeRenderer {
     this.drawCell(this.maze.getEndCell(), '#ff0000');
   }
 
-  private drawCell(cell: any, color: string = '#000000'): void {
+  private drawCell(cell: BaseMazeCell, color: string = '#000000'): void {
     const { x, y } = cell.position;
     const cellX = this.offsetX + x * this.cellSize;
     const cellY = this.offsetY + y * this.cellSize;
@@ -82,25 +85,29 @@ export class MazeRenderer {
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 2;
 
-    if (cell.hasWall(0)) { // Top
+    if (cell.hasWall(0)) {
+      // Top
       this.ctx.beginPath();
       this.ctx.moveTo(cellX, cellY);
       this.ctx.lineTo(cellX + this.cellSize, cellY);
       this.ctx.stroke();
     }
-    if (cell.hasWall(1)) { // Right
+    if (cell.hasWall(1)) {
+      // Right
       this.ctx.beginPath();
       this.ctx.moveTo(cellX + this.cellSize, cellY);
       this.ctx.lineTo(cellX + this.cellSize, cellY + this.cellSize);
       this.ctx.stroke();
     }
-    if (cell.hasWall(2)) { // Bottom
+    if (cell.hasWall(2)) {
+      // Bottom
       this.ctx.beginPath();
       this.ctx.moveTo(cellX, cellY + this.cellSize);
       this.ctx.lineTo(cellX + this.cellSize, cellY + this.cellSize);
       this.ctx.stroke();
     }
-    if (cell.hasWall(3)) { // Left
+    if (cell.hasWall(3)) {
+      // Left
       this.ctx.beginPath();
       this.ctx.moveTo(cellX, cellY);
       this.ctx.lineTo(cellX, cellY + this.cellSize);

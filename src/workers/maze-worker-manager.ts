@@ -1,9 +1,19 @@
-import { MazeConfig } from '../types/maze';
+import { MazeConfig, Solution } from '../types/maze';
 import { MazeRenderer } from '../objects/maze-renderer';
+import { SquareMazeGrid } from '../objects/square-maze-grid';
 
 interface WorkerResponse {
   type: 'progress' | 'complete' | 'error';
-  payload: any;
+  payload: {
+    type?: string;
+    currentState?: SquareMazeGrid;
+    currentPath?: Solution;
+    openSet?: Set<string>;
+    closedSet?: Set<string>;
+    maze?: SquareMazeGrid;
+    solution?: Solution;
+    message?: string;
+  };
 }
 
 export class MazeWorkerManager {
@@ -19,7 +29,7 @@ export class MazeWorkerManager {
   }
 
   private setupMessageHandler(): void {
-    this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+    this.worker.onmessage = (event: MessageEvent<WorkerResponse>): void => {
       const { type, payload } = event.data;
       switch (type) {
         case 'progress':
@@ -29,13 +39,13 @@ export class MazeWorkerManager {
           this.handleComplete(payload);
           break;
         case 'error':
-          this.onError(payload.message);
+          this.onError(payload.message || 'Unknown error');
           break;
       }
     };
   }
 
-  private handleProgress(payload: any): void {
+  private handleProgress(payload: WorkerResponse['payload']): void {
     const { type, currentState, currentPath, openSet, closedSet } = payload;
 
     if (this.renderer) {
@@ -60,7 +70,7 @@ export class MazeWorkerManager {
     }
   }
 
-  private handleComplete(payload: any): void {
+  private handleComplete(payload: WorkerResponse['payload']): void {
     const { type, maze, solution } = payload;
 
     if (this.renderer) {

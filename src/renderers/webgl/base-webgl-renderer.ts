@@ -53,9 +53,6 @@ export class BaseWebGLRenderer {
   }
 
   protected calculateCellSize(width: number, height: number): number {
-    return Math.min(
-      this.canvas.width / width,
-      this.canvas.height / height
-    );
+    return Math.min(this.canvas.width / width, this.canvas.height / height);
   }
 }

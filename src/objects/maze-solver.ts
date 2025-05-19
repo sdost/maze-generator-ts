@@ -31,7 +31,7 @@ export class MazeSolver {
       parent: null,
       g: 0,
       h: this.heuristic(this.startCell),
-      f: this.heuristic(this.startCell)
+      f: this.heuristic(this.startCell),
     };
     this.openSet.push(startNode);
     this.currentPath = [this.startCell.position];
@@ -76,11 +76,13 @@ export class MazeSolver {
     }
 
     // Get node with lowest f score
-    this.current = this.openSet.reduce((min, node) =>
-      node.f < min.f ? node : min, this.openSet[0]);
+    this.current = this.openSet.reduce(
+      (min, node) => (node.f < min.f ? node : min),
+      this.openSet[0]
+    );
 
     // Remove current from open set
-    this.openSet = this.openSet.filter(node => node !== this.current);
+    this.openSet = this.openSet.filter((node) => node !== this.current);
 
     // Add current to closed set
     this.closedSet.add(this.current.cell);
@@ -101,14 +103,14 @@ export class MazeSolver {
       const fScore = gScore + hScore;
 
       // Check if this path to neighbor is better than previous ones
-      const existingNode = this.openSet.find(n => n.cell === neighbor);
+      const existingNode = this.openSet.find((n) => n.cell === neighbor);
       if (!existingNode || gScore < existingNode.g) {
         const newNode: Node = {
           cell: neighbor,
           parent: this.current,
           g: gScore,
           h: hScore,
-          f: fScore
+          f: fScore,
         };
 
         if (!existingNode) {
@@ -141,11 +143,11 @@ export class MazeSolver {
   }
 
   public getOpenSet(): Position[] {
-    return this.openSet.map(node => node.cell.position);
+    return this.openSet.map((node) => node.cell.position);
   }
 
   public getClosedSet(): Position[] {
-    return Array.from(this.closedSet).map(cell => cell.position);
+    return Array.from(this.closedSet).map((cell) => cell.position);
   }
 
   public getSolution(): Solution {
@@ -156,7 +158,7 @@ export class MazeSolver {
     return {
       path: this.currentPath,
       start: this.startCell.position,
-      end: this.endCell.position
+      end: this.endCell.position,
     };
   }
 }

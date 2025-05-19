@@ -4,12 +4,21 @@ import { MazeSolver } from '../objects/maze-solver';
 
 interface WorkerMessage {
   type: 'generate' | 'iterate' | 'solve' | 'iterateSolution';
-  payload?: any;
+  payload?: MazeConfig;
 }
 
 interface WorkerResponse {
   type: 'progress' | 'complete' | 'error';
-  payload: any;
+  payload: {
+    type?: string;
+    done?: boolean;
+    maze?: SquareMazeGrid;
+    solution?: Solution;
+    currentPath?: Solution;
+    openSet?: Set<string>;
+    closedSet?: Set<string>;
+    message?: string;
+  };
 }
 
 export class MazeWorker {
@@ -23,12 +32,12 @@ export class MazeWorker {
   }
 
   private setupMessageHandler(): void {
-    this.worker.onmessage = (event: MessageEvent<WorkerMessage>) => {
+    this.worker.onmessage = (event: MessageEvent<WorkerMessage>): void => {
       try {
         const { type, payload } = event.data;
         switch (type) {
           case 'generate':
-            this.handleGenerate(payload);
+            this.handleGenerate(payload as MazeConfig);
             break;
           case 'iterate':
             this.handleIterate();
@@ -68,7 +77,7 @@ export class MazeWorker {
 
     const done = this.maze.iterate();
     this.sendProgress('iterate', {
-      done
+      done,
     });
 
     if (done) {
@@ -102,7 +111,7 @@ export class MazeWorker {
       done,
       currentPath: this.solver.getCurrentPath(),
       openSet: this.solver.getOpenSet(),
-      closedSet: this.solver.getClosedSet()
+      closedSet: this.solver.getClosedSet(),
     });
 
     if (done) {
@@ -112,24 +121,24 @@ export class MazeWorker {
     }
   }
 
-  private sendProgress(type: string, payload: any): void {
+  private sendProgress(type: string, payload: WorkerResponse['payload']): void {
     this.worker.postMessage({
       type: 'progress',
-      payload: { type, ...payload }
+      payload: { type, ...payload },
     } as WorkerResponse);
   }
 
-  private sendComplete(type: string, payload: any): void {
+  private sendComplete(type: string, payload: WorkerResponse['payload']): void {
     this.worker.postMessage({
       type: 'complete',
-      payload: { type, ...payload }
+      payload: { type, ...payload },
     } as WorkerResponse);
   }
 
   private sendError(message: string): void {
     this.worker.postMessage({
       type: 'error',
-      payload: { message }
+      payload: { message },
     } as WorkerResponse);
   }
 }

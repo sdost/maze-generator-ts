@@ -2,42 +2,56 @@
 class MockWebGLRenderingContext {
   // Constants
   COLOR_BUFFER_BIT = 0x00004000;
-  VERTEX_SHADER = 0x8B31;
-  FRAGMENT_SHADER = 0x8B30;
+  VERTEX_SHADER = 0x8b31;
+  FRAGMENT_SHADER = 0x8b30;
   ARRAY_BUFFER = 0x8892;
-  STATIC_DRAW = 0x88E4;
+  STATIC_DRAW = 0x88e4;
   LINES = 0x0001;
-  LINK_STATUS = 0x8B82;
-  COMPILE_STATUS = 0x8B81;
+  LINK_STATUS = 0x8b82;
+  COMPILE_STATUS = 0x8b81;
 
   // Mock methods
-  viewport() {}
-  clearColor() {}
-  clear() {}
-  useProgram() {}
-  uniform2f() {}
-  uniform4fv() {}
-  bindBuffer() {}
-  bufferData() {}
-  drawArrays() {}
-  createProgram() { return {}; }
-  createShader() { return {}; }
-  attachShader() {}
-  linkProgram() {}
-  getProgramParameter() { return true; }
-  getUniformLocation() { return {}; }
-  createBuffer() { return {}; }
-  shaderSource() {}
-  compileShader() {}
-  getShaderParameter() { return true; }
-  getShaderInfoLog() { return ''; }
+  viewport(): void {}
+  clearColor(): void {}
+  clear(): void {}
+  useProgram(): void {}
+  uniform2f(): void {}
+  uniform4fv(): void {}
+  bindBuffer(): void {}
+  bufferData(): void {}
+  drawArrays(): void {}
+  createProgram(): Record<string, unknown> {
+    return {};
+  }
+  createShader(): Record<string, unknown> {
+    return {};
+  }
+  attachShader(): void {}
+  linkProgram(): void {}
+  getProgramParameter(): boolean {
+    return true;
+  }
+  getUniformLocation(): Record<string, unknown> {
+    return {};
+  }
+  createBuffer(): Record<string, unknown> {
+    return {};
+  }
+  shaderSource(): void {}
+  compileShader(): void {}
+  getShaderParameter(): boolean {
+    return true;
+  }
+  getShaderInfoLog(): string {
+    return '';
+  }
 }
 
 // Mock canvas
 class MockCanvas {
   width = 800;
   height = 600;
-  getContext() {
+  getContext(): MockWebGLRenderingContext {
     return new MockWebGLRenderingContext();
   }
 }

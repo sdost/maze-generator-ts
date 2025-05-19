@@ -38,9 +38,7 @@ export abstract class BaseMazeCell implements MazeCell {
   }
 
   public equals(other: BaseMazeCell): boolean {
-    return (
-      this._position.x === other._position.x && this._position.y === other._position.y
-    );
+    return this._position.x === other._position.x && this._position.y === other._position.y;
   }
 
   public toString(): string {

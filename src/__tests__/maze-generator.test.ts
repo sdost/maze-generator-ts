@@ -12,7 +12,7 @@ describe('SquareMazeGrid', () => {
     renderer: 'webgl',
     animationSpeed: 100,
     cellSize: 20,
-    ...overrides
+    ...overrides,
   });
 
   describe('constructor', () => {

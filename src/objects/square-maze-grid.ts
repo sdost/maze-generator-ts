@@ -79,7 +79,7 @@ export class SquareMazeGrid implements MazeGrid {
 
   private addWall(cellA: SquareMazeCell, cellB: SquareMazeCell): void {
     const wall = MazeWall.create(cellA, cellB);
-    if (!this.wallList.some(w => w.equals(wall))) {
+    if (!this.wallList.some((w) => w.equals(wall))) {
       this.wallList.push(wall);
     } else {
       MazeWall.release(wall);
@@ -141,7 +141,7 @@ export class SquareMazeGrid implements MazeGrid {
   }
 
   private createExitCells(prng: PseudoRandom): void {
-    let outerWall: SquareWall = prng.nextIntRange(0, 3);
+    const outerWall: SquareWall = prng.nextIntRange(0, 3);
     let xPos = 0;
     let yPos = 0;
 

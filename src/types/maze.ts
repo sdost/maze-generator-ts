@@ -52,5 +52,5 @@ export interface MazeGrid {
 }
 
 export interface IComparable {
-  equals(other: any): boolean;
+  equals(other: IComparable): boolean;
 }

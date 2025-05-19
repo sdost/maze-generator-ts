@@ -25,7 +25,7 @@ export class MazeWorker {
       algorithm: 'kruskal',
       renderer: 'webgl',
       animationSpeed: 100,
-      cellSize: 20
+      cellSize: 20,
     };
     this.maze = SquareMazeGrid.generate(config);
     this.renderer = new MazeRenderer(this.canvas, this.maze);
