@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  base: '/maze-generator-ts/',
+  base: './',
   build: {
     outDir: 'dist',
     target: 'esnext',
