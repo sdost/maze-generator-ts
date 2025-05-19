@@ -12,12 +12,13 @@ Visit the [live demo](https://sdost.github.io/maze-generator-ts/) to see the maz
 - Solve mazes using A* pathfinding algorithm
 - WebGL-based rendering for smooth performance
 - Animated maze generation and solving process
+- GitHub Pages deployment with automatic CI/CD
 
 ## Development
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
+- Node.js (v18.x or v20.x)
 - npm (v7 or higher)
 
 ### Setup
@@ -30,13 +31,21 @@ Visit the [live demo](https://sdost.github.io/maze-generator-ts/) to see the maz
 
 2. Install dependencies:
    ```bash
-   npm install
+   npm ci
    ```
 
 3. Start the development server:
    ```bash
    npm run dev
    ```
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run type-check` - Run TypeScript type checking
+- `npm run lint` - Run ESLint
+- `npm test` - Run tests
 
 ### Building
 
@@ -46,7 +55,7 @@ To build the project for production:
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+The built files will be in the `dist` directory and will be automatically deployed to GitHub Pages when pushed to the main branch.
 
 ## License
 
