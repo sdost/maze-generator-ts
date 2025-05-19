@@ -1,27 +1,30 @@
-export class DisjointSet<T> {
-  private parent: Map<T, T> = new Map();
-  private rank: Map<T, number> = new Map();
+export class DisjointSet {
+  private parent: number[];
+  private rank: number[];
 
-  constructor(private readonly capacity: number) {}
-
-  public createSet(x: T): void {
-    this.parent.set(x, x);
-    this.rank.set(x, 0);
+  constructor(size: number) {
+    this.parent = Array.from({ length: size }, (_, i) => i);
+    this.rank = new Array(size).fill(0);
   }
 
-  public findSet(x: T): T {
-    if (!this.parent.has(x)) {
+  public createSet(x: number): void {
+    this.parent[x] = x;
+    this.rank[x] = 0;
+  }
+
+  public findSet(x: number): number {
+    if (x < 0 || x >= this.parent.length) {
       throw new Error('Element not found in any set');
     }
 
-    if (this.parent.get(x) !== x) {
-      this.parent.set(x, this.findSet(this.parent.get(x)!));
+    if (this.parent[x] !== x) {
+      this.parent[x] = this.findSet(this.parent[x]);
     }
 
-    return this.parent.get(x)!;
+    return this.parent[x];
   }
 
-  public mergeSet(x: T, y: T): void {
+  public mergeSet(x: number, y: number): void {
     const rootX = this.findSet(x);
     const rootY = this.findSet(y);
 
@@ -29,16 +32,16 @@ export class DisjointSet<T> {
       return;
     }
 
-    const rankX = this.rank.get(rootX)!;
-    const rankY = this.rank.get(rootY)!;
+    const rankX = this.rank[rootX];
+    const rankY = this.rank[rootY];
 
     if (rankX < rankY) {
-      this.parent.set(rootX, rootY);
+      this.parent[rootX] = rootY;
     } else if (rankX > rankY) {
-      this.parent.set(rootY, rootX);
+      this.parent[rootY] = rootX;
     } else {
-      this.parent.set(rootY, rootX);
-      this.rank.set(rootX, rankX + 1);
+      this.parent[rootY] = rootX;
+      this.rank[rootX] = rankX + 1;
     }
   }
 }

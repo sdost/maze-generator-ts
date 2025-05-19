@@ -1,5 +1,3 @@
-declare const global: any;
-
 // Mock WebGL context
 class MockWebGLRenderingContext {
   // Constants

@@ -10,7 +10,7 @@ import { MazeGenerationError } from '../errors/maze-errors';
 export class SquareMazeGrid implements MazeGrid {
   private readonly _cells: SquareMazeCell[];
   private readonly wallList: MazeWall[];
-  private readonly sets: DisjointSet<SquareMazeCell>;
+  private readonly sets: DisjointSet;
   private startCell: SquareMazeCell | null = null;
   private endCell: SquareMazeCell | null = null;
 
@@ -18,7 +18,7 @@ export class SquareMazeGrid implements MazeGrid {
     ConfigValidator.validate(config);
     this._cells = new Array<SquareMazeCell>(config.width * config.height);
     this.wallList = [];
-    this.sets = new DisjointSet<SquareMazeCell>(config.width * config.height);
+    this.sets = new DisjointSet(config.width * config.height);
     this.initializeGrid(config);
   }
 
@@ -61,7 +61,7 @@ export class SquareMazeGrid implements MazeGrid {
       for (let x = 0; x < config.width; x++) {
         const cell = new SquareMazeCell({ x, y });
         this._cells[x + y * config.width] = cell;
-        this.sets.createSet(cell);
+        this.sets.createSet(x + y * config.width);
       }
     }
 
@@ -92,8 +92,10 @@ export class SquareMazeGrid implements MazeGrid {
     }
 
     const wall = this.wallList.pop()!;
-    if (this.sets.findSet(wall.cellA) !== this.sets.findSet(wall.cellB)) {
-      this.sets.mergeSet(wall.cellA, wall.cellB);
+    const cellAIndex = wall.cellA.position.x + wall.cellA.position.y * this.width;
+    const cellBIndex = wall.cellB.position.x + wall.cellB.position.y * this.width;
+    if (this.sets.findSet(cellAIndex) !== this.sets.findSet(cellBIndex)) {
+      this.sets.mergeSet(cellAIndex, cellBIndex);
       this.removeWallsBetween(wall.cellA, wall.cellB);
     }
 
