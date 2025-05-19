@@ -1,9 +1,8 @@
-import { MazeWorker } from './maze-worker';
+import { MazeWorkerManager } from './workers/maze-worker-manager';
 import { MazeGenerationError } from './errors/maze-errors';
 
 class App {
-  private worker: MazeWorker;
-  private animationFrameId: number | null = null;
+  private workerManager: MazeWorkerManager;
   private isGenerating = false;
   private isSolving = false;
 
@@ -17,7 +16,11 @@ class App {
     canvas.width = 800;
     canvas.height = 800;
 
-    this.worker = new MazeWorker(canvas);
+    this.workerManager = new MazeWorkerManager(canvas, (error) => {
+      alert(error);
+      this.isGenerating = false;
+      this.isSolving = false;
+    });
     this.setupEventListeners();
   }
 
@@ -47,8 +50,15 @@ class App {
 
     try {
       this.isGenerating = true;
-      this.worker.generateMaze(width, height, seed);
-      this.animateGeneration();
+      this.workerManager.generateMaze({
+        width,
+        height,
+        seed,
+        algorithm: 'kruskal',
+        renderer: 'canvas',
+        animationSpeed: 100,
+        cellSize: 20,
+      });
     } catch (error) {
       this.isGenerating = false;
       alert(error instanceof Error ? error.message : 'Failed to generate maze');
@@ -60,8 +70,7 @@ class App {
 
     try {
       this.isSolving = true;
-      this.worker.solveMaze();
-      this.animateSolution();
+      this.workerManager.solveMaze();
     } catch (error) {
       this.isSolving = false;
       if (error instanceof MazeGenerationError) {
@@ -69,50 +78,6 @@ class App {
       } else {
         alert('Failed to solve maze');
       }
-    }
-  }
-
-  private animateGeneration(): void {
-    try {
-      const done = this.worker.iterateMaze();
-      if (done) {
-        this.isGenerating = false;
-        if (this.animationFrameId) {
-          cancelAnimationFrame(this.animationFrameId);
-          this.animationFrameId = null;
-        }
-      } else {
-        this.animationFrameId = requestAnimationFrame(() => this.animateGeneration());
-      }
-    } catch (error) {
-      this.isGenerating = false;
-      if (this.animationFrameId) {
-        cancelAnimationFrame(this.animationFrameId);
-        this.animationFrameId = null;
-      }
-      alert(error instanceof Error ? error.message : 'Failed to generate maze');
-    }
-  }
-
-  private animateSolution(): void {
-    try {
-      const done = this.worker.iterateSolution();
-      if (done) {
-        this.isSolving = false;
-        if (this.animationFrameId) {
-          cancelAnimationFrame(this.animationFrameId);
-          this.animationFrameId = null;
-        }
-      } else {
-        this.animationFrameId = requestAnimationFrame(() => this.animateSolution());
-      }
-    } catch (error) {
-      this.isSolving = false;
-      if (this.animationFrameId) {
-        cancelAnimationFrame(this.animationFrameId);
-        this.animationFrameId = null;
-      }
-      alert(error instanceof Error ? error.message : 'Failed to solve maze');
     }
   }
 }

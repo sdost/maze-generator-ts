@@ -58,4 +58,5 @@ export default defineConfig({
     },
   },
   publicDir: 'public',
+  appType: 'spa',
 });
