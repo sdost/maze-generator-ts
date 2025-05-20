@@ -33,6 +33,12 @@ class App {
       this.updateButtonStates();
     };
 
+    // Add callback for solve completion
+    this.workerManager.onSolveComplete = (): void => {
+      this.isSolving = false;
+      this.updateButtonStates();
+    };
+
     this.setupEventListeners();
   }
 

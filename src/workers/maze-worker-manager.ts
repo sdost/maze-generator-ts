@@ -38,6 +38,7 @@ export class MazeWorkerManager {
   private isAnimating = false;
   private isSolving = false;
   public onGenerationComplete?: () => void;
+  public onSolveComplete?: () => void;
   private onError?: (error: string) => void;
 
   constructor(
@@ -193,6 +194,9 @@ export class MazeWorkerManager {
           if (this.animationFrameId !== null) {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
+          }
+          if (this.onSolveComplete) {
+            this.onSolveComplete();
           }
         }
         break;
