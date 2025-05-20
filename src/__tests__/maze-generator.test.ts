@@ -92,15 +92,31 @@ describe('SquareMazeGrid', () => {
       const grid1 = SquareMazeGrid.generate(config1);
       const grid2 = SquareMazeGrid.generate(config2);
 
+      // Complete maze generation for both grids
+      while (!grid1.iterate()) {
+        // Continue until maze generation is complete
+      }
+      while (!grid2.iterate()) {
+        // Continue until maze generation is complete
+      }
+
       // Compare wall configurations
       let different = false;
-      for (let i = 0; i < grid1.cells.length; i++) {
-        const cell1 = grid1.cells[i];
-        const cell2 = grid2.cells[i];
-        if (JSON.stringify(cell1.walls) !== JSON.stringify(cell2.walls)) {
-          different = true;
-          break;
+      for (let y = 0; y < config1.height; y++) {
+        for (let x = 0; x < config1.width; x++) {
+          const cell1 = grid1.getCell(x, y)!;
+          const cell2 = grid2.getCell(x, y)!;
+
+          // Compare each wall
+          for (let wall = 0; wall < 4; wall++) {
+            if (cell1.hasWall(wall) !== cell2.hasWall(wall)) {
+              different = true;
+              break;
+            }
+          }
+          if (different) break;
         }
+        if (different) break;
       }
       expect(different).toBe(true);
     });

@@ -8,7 +8,6 @@ class App {
   private solveButton: HTMLButtonElement | null = null;
 
   constructor() {
-    console.log('App constructor called');
     const canvas = document.getElementById('mazeCanvas') as HTMLCanvasElement;
     if (!canvas) {
       throw new Error('Canvas element not found');
@@ -28,7 +27,6 @@ class App {
 
     // Add callback for maze generation completion
     this.workerManager.onGenerationComplete = (): void => {
-      console.log('Maze generation complete');
       this.isGenerating = false;
       this.updateButtonStates();
     };
@@ -37,24 +35,19 @@ class App {
   }
 
   private setupEventListeners(): void {
-    console.log('Setting up event listeners');
     const generateBtn = document.getElementById('generate');
     this.solveButton = document.getElementById('solve') as HTMLButtonElement;
 
     if (generateBtn) {
-      console.log('Generate button found');
       generateBtn.addEventListener('click', (): void => {
-        console.log('Generate button clicked');
         this.handleGenerate();
       });
     } else {
       console.error('Generate button not found');
     }
     if (this.solveButton) {
-      console.log('Solve button found');
       this.solveButton.disabled = true;
       this.solveButton.addEventListener('click', (): void => {
-        console.log('Solve button clicked');
         this.handleSolve();
       });
     } else {
@@ -69,17 +62,13 @@ class App {
   }
 
   private handleGenerate(): void {
-    console.log('handleGenerate called');
     if (this.isGenerating || this.isSolving) {
-      console.log('Already generating or solving');
       return;
     }
 
     const width = parseInt((document.getElementById('width') as HTMLInputElement).value);
     const height = parseInt((document.getElementById('height') as HTMLInputElement).value);
     const seed = parseInt((document.getElementById('seed') as HTMLInputElement).value);
-
-    console.log('Maze config:', { width, height, seed });
 
     if (isNaN(width) || isNaN(height) || isNaN(seed)) {
       alert('Please enter valid numbers for width, height, and seed');
@@ -89,7 +78,6 @@ class App {
     try {
       this.isGenerating = true;
       this.updateButtonStates();
-      console.log('Sending generate message to worker');
       this.workerManager.generateMaze({
         width,
         height,
@@ -108,14 +96,11 @@ class App {
   }
 
   private handleSolve(): void {
-    console.log('handleSolve called');
     if (this.isGenerating || this.isSolving) {
-      console.log('Already generating or solving');
       return;
     }
 
     try {
-      console.log('Starting maze solving');
       this.isSolving = true;
       this.updateButtonStates();
       this.workerManager.solveMaze();
@@ -134,6 +119,5 @@ class App {
 
 // Initialize the app when the DOM is loaded
 document.addEventListener('DOMContentLoaded', (): void => {
-  console.log('DOM loaded, initializing app');
   new App();
 });

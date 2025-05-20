@@ -16,7 +16,13 @@ export class PseudoRandom {
   }
 
   public nextIntRange(min: number, max: number): number {
-    return min + (this.nextInt() % (max - min + 1));
+    const range = max - min + 1;
+    const maxValue = PseudoRandom.MODULUS - (PseudoRandom.MODULUS % range);
+    let value: number;
+    do {
+      value = this.nextInt();
+    } while (value >= maxValue);
+    return min + (value % range);
   }
 
   public nextDouble(): number {

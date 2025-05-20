@@ -48,8 +48,6 @@ export class MazeRenderer {
     openSet: Position[],
     closedSet: Position[]
   ): void {
-    console.log('Rendering solving progress:', { currentPath, openSet, closedSet });
-
     // First render the base maze
     this.render();
 
@@ -91,10 +89,20 @@ export class MazeRenderer {
     // Draw cell background for start and end cells
     if (cell === this.maze.getStartCell()) {
       this.ctx.fillStyle = 'rgba(0, 255, 0, 0.2)'; // Light green tint
-      this.ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+      this.ctx.fillRect(
+        this.offsetX + x * cellWidth,
+        this.offsetY + y * cellHeight,
+        cellWidth,
+        cellHeight
+      );
     } else if (cell === this.maze.getEndCell()) {
       this.ctx.fillStyle = 'rgba(255, 0, 0, 0.2)'; // Light red tint
-      this.ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+      this.ctx.fillRect(
+        this.offsetX + x * cellWidth,
+        this.offsetY + y * cellHeight,
+        cellWidth,
+        cellHeight
+      );
     }
 
     // Draw walls
@@ -104,29 +112,29 @@ export class MazeRenderer {
     if (cell.hasWall(0)) {
       // Top
       this.ctx.beginPath();
-      this.ctx.moveTo(x * cellWidth, y * cellHeight);
-      this.ctx.lineTo((x + 1) * cellWidth, y * cellHeight);
+      this.ctx.moveTo(this.offsetX + x * cellWidth, this.offsetY + y * cellHeight);
+      this.ctx.lineTo(this.offsetX + (x + 1) * cellWidth, this.offsetY + y * cellHeight);
       this.ctx.stroke();
     }
     if (cell.hasWall(1)) {
       // Right
       this.ctx.beginPath();
-      this.ctx.moveTo((x + 1) * cellWidth, y * cellHeight);
-      this.ctx.lineTo((x + 1) * cellWidth, (y + 1) * cellHeight);
+      this.ctx.moveTo(this.offsetX + (x + 1) * cellWidth, this.offsetY + y * cellHeight);
+      this.ctx.lineTo(this.offsetX + (x + 1) * cellWidth, this.offsetY + (y + 1) * cellHeight);
       this.ctx.stroke();
     }
     if (cell.hasWall(2)) {
       // Bottom
       this.ctx.beginPath();
-      this.ctx.moveTo(x * cellWidth, (y + 1) * cellHeight);
-      this.ctx.lineTo((x + 1) * cellWidth, (y + 1) * cellHeight);
+      this.ctx.moveTo(this.offsetX + x * cellWidth, this.offsetY + (y + 1) * cellHeight);
+      this.ctx.lineTo(this.offsetX + (x + 1) * cellWidth, this.offsetY + (y + 1) * cellHeight);
       this.ctx.stroke();
     }
     if (cell.hasWall(3)) {
       // Left
       this.ctx.beginPath();
-      this.ctx.moveTo(x * cellWidth, y * cellHeight);
-      this.ctx.lineTo(x * cellWidth, (y + 1) * cellHeight);
+      this.ctx.moveTo(this.offsetX + x * cellWidth, this.offsetY + y * cellHeight);
+      this.ctx.lineTo(this.offsetX + x * cellWidth, this.offsetY + (y + 1) * cellHeight);
       this.ctx.stroke();
     }
   }

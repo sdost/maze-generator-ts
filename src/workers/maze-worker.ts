@@ -42,14 +42,11 @@ class MazeWorker {
   private isGenerating: boolean = false;
 
   constructor() {
-    console.log('Worker initialized');
     this.setupMessageHandler();
   }
 
   private setupMessageHandler(): void {
-    console.log('Setting up worker message handler');
     self.onmessage = (event: MessageEvent<WorkerMessage>): void => {
-      console.log('Worker received message:', event.data);
       try {
         const { type, payload } = event.data;
         switch (type) {
@@ -95,14 +92,11 @@ class MazeWorker {
   }
 
   private handleGenerate(config: MazeConfig): void {
-    console.log('Handling generate with config:', config);
     try {
       this.solver = null;
       this.isGenerating = true;
       this.maze = SquareMazeGrid.generate(config);
-      console.log('Maze generated:', this.maze);
       const serializedMaze = this.serializeMaze(this.maze);
-      console.log('Serialized maze:', serializedMaze);
       this.sendProgress('generate', {
         done: false,
         currentState: serializedMaze,
@@ -114,7 +108,6 @@ class MazeWorker {
   }
 
   private handleIterate(): void {
-    console.log('Handling iterate');
     if (!this.maze) {
       this.sendError('Maze not generated');
       return;
@@ -122,7 +115,6 @@ class MazeWorker {
 
     try {
       const done = this.maze.iterate();
-      console.log('Iteration complete, done:', done);
       const serializedMaze = this.serializeMaze(this.maze);
       this.sendProgress('iterate', {
         done,
@@ -140,7 +132,6 @@ class MazeWorker {
   }
 
   private handleSolve(): void {
-    console.log('Handling solve');
     if (!this.maze) {
       this.sendError('Maze not generated');
       return;
@@ -151,16 +142,13 @@ class MazeWorker {
     }
 
     try {
-      console.log('Initializing solver with maze:', this.maze);
       this.solver = new MazeSolver(this.maze);
-      console.log('Solver initialized');
 
       // Send initial state
       const currentPath = this.solver.getCurrentPath();
       const openSet = this.solver.getOpenSet();
       const closedSet = this.solver.getClosedSet();
 
-      console.log('Sending initial solve state:', { currentPath, openSet, closedSet });
       this.sendProgress('solve', {
         done: false,
         currentPath,
@@ -174,7 +162,6 @@ class MazeWorker {
   }
 
   private handleIterateSolution(): void {
-    console.log('Handling iterate solution');
     if (!this.solver) {
       this.sendError('Solver not initialized');
       return;
@@ -182,14 +169,12 @@ class MazeWorker {
 
     try {
       const done = this.solver.iterate();
-      console.log('Solution iteration complete, done:', done);
 
       // Always send progress, even if done
       const currentPath = this.solver.getCurrentPath();
       const openSet = this.solver.getOpenSet();
       const closedSet = this.solver.getClosedSet();
 
-      console.log('Sending solve progress:', { currentPath, openSet, closedSet });
       this.sendProgress('iterateSolution', {
         done,
         currentPath,
@@ -200,7 +185,6 @@ class MazeWorker {
       if (done) {
         try {
           const solution = this.solver.getSolution();
-          console.log('Solution found:', solution);
           this.sendComplete('solve', { solution });
           this.solver = null;
         } catch (error) {
@@ -215,7 +199,6 @@ class MazeWorker {
   }
 
   private sendProgress(type: string, payload: WorkerResponse['payload']): void {
-    console.log('Sending progress:', { type, payload });
     self.postMessage({
       type: 'progress',
       payload: { type, ...payload },
@@ -223,7 +206,6 @@ class MazeWorker {
   }
 
   private sendComplete(type: string, payload: WorkerResponse['payload']): void {
-    console.log('Sending complete:', { type, payload });
     self.postMessage({
       type: 'complete',
       payload: { type, ...payload },
@@ -240,5 +222,4 @@ class MazeWorker {
 }
 
 // Initialize the worker
-console.log('Creating worker instance');
 new MazeWorker();

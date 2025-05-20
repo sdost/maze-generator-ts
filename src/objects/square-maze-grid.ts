@@ -74,12 +74,18 @@ export class SquareMazeGrid implements MazeGrid {
     }
 
     // Initialize walls
-    for (const cell of this._cells) {
-      for (let wall = 0; wall < 4; wall++) {
-        const neighborPos = cell.getNeighborPosition(wall);
-        const neighbor = this.getCell(neighborPos.x, neighborPos.y);
-        if (neighbor) {
-          this.addWall(cell, neighbor);
+    for (let y = 0; y < config.height; y++) {
+      for (let x = 0; x < config.width; x++) {
+        const cell = this.getCell(x, y)!;
+
+        // Add walls to neighbors
+        if (x < config.width - 1) {
+          const rightCell = this.getCell(x + 1, y)!;
+          this.addWall(cell, rightCell);
+        }
+        if (y < config.height - 1) {
+          const bottomCell = this.getCell(x, y + 1)!;
+          this.addWall(cell, bottomCell);
         }
       }
     }
@@ -140,7 +146,7 @@ export class SquareMazeGrid implements MazeGrid {
 
     // Shuffle walls using Fisher-Yates algorithm with seeded random
     for (let i = grid.wallList.length - 1; i > 0; i--) {
-      const j = Math.floor(prng.nextDouble() * (i + 1));
+      const j = prng.nextIntRange(0, i);
       [grid.wallList[i], grid.wallList[j]] = [grid.wallList[j], grid.wallList[i]];
     }
 
