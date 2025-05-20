@@ -6,7 +6,7 @@ export interface Position {
 export interface MazeConfig {
   readonly width: number;
   readonly height: number;
-  readonly seed?: number;
+  readonly seed?: string | null;
   readonly algorithm: 'recursive' | 'kruskal' | 'prim';
   readonly renderer: 'canvas' | 'webgl';
   readonly animationSpeed: number;

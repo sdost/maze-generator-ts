@@ -5,8 +5,25 @@ export class PseudoRandom {
 
   private seed: number;
 
-  constructor(seed: number = Date.now()) {
-    this.seed = seed;
+  constructor(seed: string | number | null = Date.now()) {
+    if (seed === null) {
+      this.seed = Date.now();
+    } else if (typeof seed === 'string') {
+      // Convert string to number using a simple hash function
+      this.seed = this.hashString(seed);
+    } else {
+      this.seed = seed;
+    }
+  }
+
+  private hashString(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash);
   }
 
   public nextInt(): number {

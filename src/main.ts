@@ -76,10 +76,11 @@ class App {
 
     const width = parseInt((document.getElementById('width') as HTMLInputElement).value);
     const height = parseInt((document.getElementById('height') as HTMLInputElement).value);
-    const seed = parseInt((document.getElementById('seed') as HTMLInputElement).value);
+    const seedInput = document.getElementById('seed') as HTMLInputElement;
+    const seed = seedInput.value.trim() || null;
 
-    if (isNaN(width) || isNaN(height) || isNaN(seed)) {
-      alert('Please enter valid numbers for width, height, and seed');
+    if (isNaN(width) || isNaN(height)) {
+      alert('Please enter valid numbers for width and height');
       return;
     }
 

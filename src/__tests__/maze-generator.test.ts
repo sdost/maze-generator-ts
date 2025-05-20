@@ -74,7 +74,7 @@ describe('SquareMazeGrid', () => {
 
   describe('static generate', () => {
     it('should generate a maze with the same seed', () => {
-      const config = createConfig({ seed: 123 });
+      const config = createConfig({ seed: '123' });
       const grid1 = SquareMazeGrid.generate(config);
       const grid2 = SquareMazeGrid.generate(config);
 
@@ -87,8 +87,8 @@ describe('SquareMazeGrid', () => {
     });
 
     it('should generate different mazes with different seeds', () => {
-      const config1 = createConfig({ seed: 123 });
-      const config2 = createConfig({ seed: 456 });
+      const config1 = createConfig({ seed: '123' });
+      const config2 = createConfig({ seed: '456' });
       const grid1 = SquareMazeGrid.generate(config1);
       const grid2 = SquareMazeGrid.generate(config2);
 

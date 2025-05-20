@@ -142,7 +142,7 @@ export class SquareMazeGrid implements MazeGrid {
 
   public static generate(config: MazeConfig): SquareMazeGrid {
     const grid = new SquareMazeGrid(config);
-    const prng = new PseudoRandom(config.seed || Date.now());
+    const prng = new PseudoRandom(config.seed);
 
     // Shuffle walls using Fisher-Yates algorithm with seeded random
     for (let i = grid.wallList.length - 1; i > 0; i--) {
@@ -152,6 +152,7 @@ export class SquareMazeGrid implements MazeGrid {
 
     // Create exit cells immediately
     grid.createExitCells(prng);
+
     return grid;
   }
 

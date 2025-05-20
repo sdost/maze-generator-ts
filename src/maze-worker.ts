@@ -14,7 +14,7 @@ export class MazeWorker {
 
   constructor(private canvas: HTMLCanvasElement) {}
 
-  public generateMaze(width: number, height: number, seed: number): void {
+  public generateMaze(width: number, height: number, seed: string | null): void {
     this.solver = null;
     this.solution = null;
     this.isGenerating = true;
