@@ -39,7 +39,6 @@ interface WorkerResponse {
 class MazeWorker {
   private maze: SquareMazeGrid | null = null;
   private solver: MazeSolver | null = null;
-  private solution: Solution | null = null;
   private isGenerating: boolean = false;
 
   constructor() {
@@ -99,7 +98,6 @@ class MazeWorker {
     console.log('Handling generate with config:', config);
     try {
       this.solver = null;
-      this.solution = null;
       this.isGenerating = true;
       this.maze = SquareMazeGrid.generate(config);
       console.log('Maze generated:', this.maze);

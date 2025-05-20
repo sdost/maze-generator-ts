@@ -85,39 +85,48 @@ export class MazeRenderer {
 
   private drawCell(cell: MazeCell, color: string = '#000000'): void {
     const { x, y } = cell.position;
-    const cellX = this.offsetX + x * this.cellSize;
-    const cellY = this.offsetY + y * this.cellSize;
+    const cellWidth = this.cellSize;
+    const cellHeight = this.cellSize;
 
-    // Draw cell walls
+    // Draw cell background for start and end cells
+    if (cell === this.maze.getStartCell()) {
+      this.ctx.fillStyle = 'rgba(0, 255, 0, 0.2)'; // Light green tint
+      this.ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+    } else if (cell === this.maze.getEndCell()) {
+      this.ctx.fillStyle = 'rgba(255, 0, 0, 0.2)'; // Light red tint
+      this.ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+    }
+
+    // Draw walls
     this.ctx.strokeStyle = color;
     this.ctx.lineWidth = 2;
 
     if (cell.hasWall(0)) {
       // Top
       this.ctx.beginPath();
-      this.ctx.moveTo(cellX, cellY);
-      this.ctx.lineTo(cellX + this.cellSize, cellY);
+      this.ctx.moveTo(x * cellWidth, y * cellHeight);
+      this.ctx.lineTo((x + 1) * cellWidth, y * cellHeight);
       this.ctx.stroke();
     }
     if (cell.hasWall(1)) {
       // Right
       this.ctx.beginPath();
-      this.ctx.moveTo(cellX + this.cellSize, cellY);
-      this.ctx.lineTo(cellX + this.cellSize, cellY + this.cellSize);
+      this.ctx.moveTo((x + 1) * cellWidth, y * cellHeight);
+      this.ctx.lineTo((x + 1) * cellWidth, (y + 1) * cellHeight);
       this.ctx.stroke();
     }
     if (cell.hasWall(2)) {
       // Bottom
       this.ctx.beginPath();
-      this.ctx.moveTo(cellX, cellY + this.cellSize);
-      this.ctx.lineTo(cellX + this.cellSize, cellY + this.cellSize);
+      this.ctx.moveTo(x * cellWidth, (y + 1) * cellHeight);
+      this.ctx.lineTo((x + 1) * cellWidth, (y + 1) * cellHeight);
       this.ctx.stroke();
     }
     if (cell.hasWall(3)) {
       // Left
       this.ctx.beginPath();
-      this.ctx.moveTo(cellX, cellY);
-      this.ctx.lineTo(cellX, cellY + this.cellSize);
+      this.ctx.moveTo(x * cellWidth, y * cellHeight);
+      this.ctx.lineTo(x * cellWidth, (y + 1) * cellHeight);
       this.ctx.stroke();
     }
   }

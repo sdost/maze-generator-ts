@@ -5,6 +5,7 @@ class App {
   private workerManager: MazeWorkerManager;
   private isGenerating = false;
   private isSolving = false;
+  private solveButton: HTMLButtonElement | null = null;
 
   constructor() {
     console.log('App constructor called');
@@ -22,12 +23,14 @@ class App {
       alert(error);
       this.isGenerating = false;
       this.isSolving = false;
+      this.updateButtonStates();
     });
 
     // Add callback for maze generation completion
     this.workerManager.onGenerationComplete = (): void => {
       console.log('Maze generation complete');
       this.isGenerating = false;
+      this.updateButtonStates();
     };
 
     this.setupEventListeners();
@@ -36,7 +39,7 @@ class App {
   private setupEventListeners(): void {
     console.log('Setting up event listeners');
     const generateBtn = document.getElementById('generate');
-    const solveBtn = document.getElementById('solve');
+    this.solveButton = document.getElementById('solve') as HTMLButtonElement;
 
     if (generateBtn) {
       console.log('Generate button found');
@@ -47,14 +50,21 @@ class App {
     } else {
       console.error('Generate button not found');
     }
-    if (solveBtn) {
+    if (this.solveButton) {
       console.log('Solve button found');
-      solveBtn.addEventListener('click', (): void => {
+      this.solveButton.disabled = true;
+      this.solveButton.addEventListener('click', (): void => {
         console.log('Solve button clicked');
         this.handleSolve();
       });
     } else {
       console.error('Solve button not found');
+    }
+  }
+
+  private updateButtonStates(): void {
+    if (this.solveButton) {
+      this.solveButton.disabled = this.isGenerating || this.isSolving;
     }
   }
 
@@ -78,6 +88,7 @@ class App {
 
     try {
       this.isGenerating = true;
+      this.updateButtonStates();
       console.log('Sending generate message to worker');
       this.workerManager.generateMaze({
         width,
@@ -91,6 +102,7 @@ class App {
     } catch (error) {
       console.error('Error in handleGenerate:', error);
       this.isGenerating = false;
+      this.updateButtonStates();
       alert(error instanceof Error ? error.message : 'Failed to generate maze');
     }
   }
@@ -105,10 +117,12 @@ class App {
     try {
       console.log('Starting maze solving');
       this.isSolving = true;
+      this.updateButtonStates();
       this.workerManager.solveMaze();
     } catch (error) {
       console.error('Error in handleSolve:', error);
       this.isSolving = false;
+      this.updateButtonStates();
       if (error instanceof MazeGenerationError) {
         alert(error.message);
       } else {

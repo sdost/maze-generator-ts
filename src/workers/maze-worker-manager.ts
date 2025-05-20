@@ -37,7 +37,6 @@ export class MazeWorkerManager {
   private animationFrameId: number | null = null;
   private isAnimating: boolean = false;
   private isSolving: boolean = false;
-  private isGenerating: boolean = false;
   public onGenerationComplete: (() => void) | null = null;
 
   constructor(
@@ -180,7 +179,6 @@ export class MazeWorkerManager {
           }
           this.renderer.render();
           this.isAnimating = false;
-          this.isGenerating = false;
           if (this.animationFrameId !== null) {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
