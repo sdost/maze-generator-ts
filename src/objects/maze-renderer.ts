@@ -18,6 +18,11 @@ export class MazeRenderer {
     this.calculateDimensions();
   }
 
+  public updateMaze(maze: MazeGrid): void {
+    this.maze = maze;
+    this.calculateDimensions();
+  }
+
   private calculateDimensions(): void {
     const padding = 20;
     this.cellSize = Math.min(
@@ -43,15 +48,18 @@ export class MazeRenderer {
     openSet: Position[],
     closedSet: Position[]
   ): void {
+    console.log('Rendering solving progress:', { currentPath, openSet, closedSet });
+
+    // First render the base maze
     this.render();
 
-    // Draw closed set (visited cells)
+    // Draw closed set (visited cells) in gray
     this.drawCells(closedSet, '#cccccc', 0.5);
 
-    // Draw open set (frontier)
+    // Draw open set (frontier) in light green
     this.drawCells(openSet, '#90EE90', 0.5);
 
-    // Draw current path
+    // Draw current path in red
     this.drawPath(currentPath, '#ff0000', 2);
   }
 
@@ -138,19 +146,19 @@ export class MazeRenderer {
     this.ctx.stroke();
   }
 
-  private drawCells(cells: Position[], color: string, alpha: number): void {
+  private drawCells(positions: Position[], color: string, alpha: number): void {
     this.ctx.fillStyle = color;
     this.ctx.globalAlpha = alpha;
 
-    for (const cell of cells) {
+    for (const pos of positions) {
       this.ctx.fillRect(
-        this.offsetX + cell.x * this.cellSize,
-        this.offsetY + cell.y * this.cellSize,
+        this.offsetX + pos.x * this.cellSize,
+        this.offsetY + pos.y * this.cellSize,
         this.cellSize,
         this.cellSize
       );
     }
 
-    this.ctx.globalAlpha = 1;
+    this.ctx.globalAlpha = 1.0;
   }
 }

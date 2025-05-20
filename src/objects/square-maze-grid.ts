@@ -55,6 +55,14 @@ export class SquareMazeGrid implements MazeGrid {
     return this.endCell;
   }
 
+  public setStartCell(cell: SquareMazeCell): void {
+    this.startCell = cell;
+  }
+
+  public setEndCell(cell: SquareMazeCell): void {
+    this.endCell = cell;
+  }
+
   private initializeGrid(config: MazeConfig): void {
     // Initialize cells
     for (let y = 0; y < config.height; y++) {
@@ -136,11 +144,7 @@ export class SquareMazeGrid implements MazeGrid {
       [grid.wallList[i], grid.wallList[j]] = [grid.wallList[j], grid.wallList[i]];
     }
 
-    // Complete the maze generation
-    while (!grid.iterate()) {
-      // Keep iterating until complete
-    }
-
+    // Create exit cells immediately
     grid.createExitCells(prng);
     return grid;
   }

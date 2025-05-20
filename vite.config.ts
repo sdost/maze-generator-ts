@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { ghPages } from 'vite-plugin-gh-pages';
+import type { PluginOption } from 'vite';
 
 export default defineConfig({
   base: '/maze-generator-ts/',
@@ -57,4 +58,8 @@ export default defineConfig({
   },
   publicDir: 'public',
   appType: 'spa',
+  worker: {
+    format: 'es',
+    plugins: (): PluginOption[] => [],
+  },
 });

@@ -26,6 +26,7 @@ export class MazeSolver {
   }
 
   private initialize(): void {
+    // Create initial node for start cell
     const startNode: Node = {
       cell: this.startCell,
       parent: null,
@@ -33,14 +34,20 @@ export class MazeSolver {
       h: this.heuristic(this.startCell),
       f: this.heuristic(this.startCell),
     };
-    this.openSet.push(startNode);
+
+    this.openSet = [startNode];
+    this.closedSet.clear();
+    this.current = null;
+    this.solutionFound = false;
     this.currentPath = [this.startCell.position];
   }
 
   private heuristic(cell: SquareMazeCell): number {
-    const { x: x1, y: y1 } = cell.position;
-    const { x: x2, y: y2 } = this.endCell.position;
-    return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+    // Manhattan distance to end cell
+    return (
+      Math.abs(cell.position.x - this.endCell.position.x) +
+      Math.abs(cell.position.y - this.endCell.position.y)
+    );
   }
 
   private getNeighbors(node: Node): SquareMazeCell[] {
@@ -62,6 +69,27 @@ export class MazeSolver {
     }
 
     return neighbors;
+  }
+
+  private updateCurrentPath(): void {
+    this.currentPath = [];
+    let node: Node | null = this.current;
+    while (node) {
+      this.currentPath.unshift(node.cell.position);
+      node = node.parent;
+    }
+  }
+
+  public getCurrentPath(): Position[] {
+    return this.currentPath;
+  }
+
+  public getOpenSet(): Position[] {
+    return this.openSet.map((node) => node.cell.position);
+  }
+
+  public getClosedSet(): Position[] {
+    return Array.from(this.closedSet).map((cell) => cell.position);
   }
 
   public iterate(): boolean {
@@ -122,32 +150,6 @@ export class MazeSolver {
     }
 
     return false;
-  }
-
-  private updateCurrentPath(): void {
-    if (!this.current) return;
-
-    const path: Position[] = [];
-    let node: Node | null = this.current;
-
-    while (node) {
-      path.unshift(node.cell.position);
-      node = node.parent;
-    }
-
-    this.currentPath = path;
-  }
-
-  public getCurrentPath(): Position[] {
-    return this.currentPath;
-  }
-
-  public getOpenSet(): Position[] {
-    return this.openSet.map((node) => node.cell.position);
-  }
-
-  public getClosedSet(): Position[] {
-    return Array.from(this.closedSet).map((cell) => cell.position);
   }
 
   public getSolution(): Solution {
