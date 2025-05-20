@@ -22,7 +22,8 @@
     "clean": "rimraf dist coverage",
     "prebuild": "npm run clean",
     "prepare": "husky install",
-    "deploy": "npm run build"
+    "deploy": "gh-pages -d dist",
+    "build:deploy": "npm run build && npm run deploy"
   },
   "dependencies": {
     "typescript": "^5.0.0"

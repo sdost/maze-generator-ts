@@ -49,8 +49,11 @@ export class MazeWorkerManager {
   }
 
   private initializeWorker(): void {
-    const workerUrl = new URL('./maze-worker.ts', import.meta.url);
-    this.worker = new Worker(workerUrl, { type: 'module' });
+    // Use a relative path that Vite will handle during build
+    this.worker = new Worker(new URL('./maze-worker.ts', import.meta.url), {
+      type: 'module',
+      name: 'maze-worker',
+    });
     this.setupMessageHandler();
   }
 
@@ -68,14 +71,14 @@ export class MazeWorkerManager {
           break;
         case 'error':
           console.error('Worker error:', payload.message);
-          this.onError?.(payload.message || 'Unknown error');
+          this.onError?.(payload.message || 'An error occurred during maze generation');
           break;
       }
     };
 
     this.worker.onerror = (error: ErrorEvent): void => {
       console.error('Worker error event:', error);
-      this.onError?.(error.message);
+      this.onError?.(error.message || 'An error occurred in the worker');
     };
   }
 

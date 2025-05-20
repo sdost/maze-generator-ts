@@ -1,11 +1,9 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { ghPages } from 'vite-plugin-gh-pages';
 import type { PluginOption } from 'vite';
 
 export default defineConfig({
   base: '/maze-generator-ts/',
-  plugins: [ghPages()],
   build: {
     outDir: 'dist',
     target: 'esnext',
@@ -61,5 +59,11 @@ export default defineConfig({
   worker: {
     format: 'es',
     plugins: (): PluginOption[] => [],
+    rollupOptions: {
+      output: {
+        format: 'es',
+        entryFileNames: 'assets/[name]-[hash].js',
+      },
+    },
   },
 });

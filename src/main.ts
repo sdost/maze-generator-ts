@@ -19,7 +19,9 @@ class App {
 
     this.workerManager = new MazeWorkerManager(canvas, (error: string): void => {
       console.error('Worker error:', error);
-      alert(error);
+      if (error) {
+        alert(error);
+      }
       this.isGenerating = false;
       this.isSolving = false;
       this.updateButtonStates();

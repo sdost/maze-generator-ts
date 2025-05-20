@@ -44,6 +44,6 @@ jobs:
 
       - name: Build and Deploy
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: npm run deploy
+        run: npm run build:deploy
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
